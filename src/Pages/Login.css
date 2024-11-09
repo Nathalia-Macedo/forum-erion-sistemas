@@ -1,0 +1,182 @@
+/* Importação da fonte */
+* {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  .container-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #0A0E45; /* Cor de fundo principal */
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .inputs{
+    display: flex;
+    flex-direction: column;
+    align-items:flex-start
+  }
+  
+  .login-form {
+    background-color: #FFFFFF;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    margin-right: 20px;
+  }
+  
+  .form-content {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .login-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 10px;
+    text-align: left;
+  }
+  
+  .login-subtitle {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #888;
+    margin-bottom: 20px;
+    text-align: left;
+  }
+  
+  .label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 5px;
+  }
+  
+  .input-field {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    width: 100%;
+  }
+  
+  .forgot-password {
+    font-size: 0.8rem;
+    color: #888;
+    text-align: right;
+    margin-top: -10px;
+    margin-bottom: 20px;
+    cursor: pointer;
+  }
+
+  .forgot-password:hover{
+    color: #0A0E45;
+  }
+  
+  .login-button {
+    background-color: #00C853;
+    color: #FFFFFF;
+    font-weight: 500;
+    font-size: 1rem;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+
+  .login-button:active{
+    background-color: #52f596;
+  }
+
+  
+  
+  .create-account {
+    background: none;
+    border: none;
+    color: #888;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .create-account:hover{
+    color: #0A0E45;
+  }
+  
+  .login-info {
+    color: #FFFFFF;
+    text-align: left;
+    max-width: 400px;
+  }
+  
+  .login-info h2 {
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+  
+  .highlight {
+    color: #00C853;
+    font-weight: 600;
+  }
+  
+  /* Estilos Responsivos */
+  @media (max-width: 768px) {
+    .container-login {
+      flex-direction: column;
+      padding: 20px;
+    }
+  
+    .login-form {
+      width: 100%;
+      margin-right: 0;
+      margin-bottom: 20px;
+    }
+  
+    .login-info {
+      max-width: 100%;
+      text-align: center;
+    }
+  
+    .login-info h2 {
+      font-size: 1.25rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .login-title {
+      font-size: 1.25rem;
+    }
+  
+    .login-subtitle {
+      font-size: 0.8rem;
+    }
+  
+    .input-field {
+      font-size: 0.85rem;
+      padding: 8px;
+    }
+  
+    .login-button {
+      font-size: 0.9rem;
+      padding: 8px;
+    }
+  
+    .create-account {
+      font-size: 0.8rem;
+    }
+  
+    .login-info h2 {
+      font-size: 1rem;
+    }
+  }
+  

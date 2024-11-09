@@ -1,0 +1,125 @@
+/* NewTopicModal.css */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background-color: #0A0E45;
+    border-radius: 10px;
+    padding: 24px;
+    width: 90%;
+    max-width: 500px;
+    color: white;
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  .modal-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+  }
+  
+  .close-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 16px;
+    text-align: start;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .form-group textarea {
+    height: 150px;
+    resize: vertical;
+  }
+  
+  .attachment-icons {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .attachment-icons button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px;
+  }
+  
+  .submit-button {
+    background-color: #00C853;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 500;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .submit-button:hover {
+    background-color: #00a847;
+  }
+  
+  @media (max-width: 768px) {
+    .modal-content {
+      width: 95%;
+      padding: 20px;
+    }
+  
+    .modal-header h2 {
+      font-size: 20px;
+    }
+  
+    .form-group label {
+      font-size: 14px;
+    }
+  
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 10px;
+    }
+  
+    .submit-button {
+      padding: 10px 20px;
+      font-size: 14px;
+    }
+  }

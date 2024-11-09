@@ -18,7 +18,7 @@ function Login() {
           </div>
           <a href="#" className="forgot-password">Esqueceu sua senha?</a>
          
-          <button className="login-button">Login</button>
+          <Link to="/home" ><button className="login-button">Login</button></Link>
           
           {/* Usando Link para navegação */}
           <Link to="/cadastro" className="create-account">CRIAR CONTA</Link>

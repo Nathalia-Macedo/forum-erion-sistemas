@@ -5,7 +5,7 @@ import Cadastro from '../Pages/Cadastro';
 import './App.css'; // Importa o CSS geral para o App (caso tenha)
 import ForumHome from '../Pages/FormHome';
 import { ForumProvider } from '../Context/Dados';
-
+import ForumPage from '../Pages/TopicPage';
 function App() {
   return (
     <ForumProvider>
@@ -15,6 +15,7 @@ function App() {
           <Route path="/" element={<Login />} /> {/* Login na raiz */}
           <Route path="/cadastro" element={<Cadastro />} /> {/* Cadastro em outra rota */}
           <Route path="/home" element={<ForumHome/>}/>
+          <Route path="/forum" element={<ForumPage/>}/>
         </Routes>
         
       </div>

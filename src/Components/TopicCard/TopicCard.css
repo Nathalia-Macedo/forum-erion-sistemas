@@ -1,0 +1,136 @@
+/* TopicCard.css */
+.topic-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 100%;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .topic-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .topic-card.expanded {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .topic-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-align: left;
+    margin: 0 0 8px 0;
+    color: #1a1a1a;
+  }
+  
+  .topic-author {
+    font-size: 0.875rem;
+    text-align: left;
+    color: #666;
+    margin: 0 0 12px 0;
+  }
+  
+  .topic-description {
+    font-size: 0.9375rem;
+    color: #333;
+    text-align: left;
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .topic-description.expanded {
+    -webkit-line-clamp: unset;
+    max-height: none;
+  }
+  
+  .topic-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+  }
+  
+  .reply-button {
+    background: transparent;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 0.875rem;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .reply-button:hover {
+    background: #f5f5f5;
+    border-color: #ccc;
+  }
+  
+  .like-section {
+    display: flex;
+    align-items: center;
+  }
+  
+  .like-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+  }
+  
+  .like-button:hover {
+    background: #f5f5f5;
+  }
+  
+  .like-button svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 640px) {
+    .topic-card {
+      margin: 10px 0;
+      padding: 16px;
+    }
+  
+    .topic-title {
+      font-size: 1.125rem;
+    }
+  
+    .topic-description {
+      font-size: 0.875rem;
+    }
+  
+    .topic-footer {
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+    }
+  }
+  
+  /* Para uma lista de cards */
+  .topic-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    max-width: 800px;
+    margin: 0 auto;
+  }

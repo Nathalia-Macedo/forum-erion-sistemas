@@ -1,0 +1,95 @@
+/* Header.css */
+.header-container {
+    background-color: #0A0E45;
+    padding: 20px;
+  }
+  
+  .forum-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .forum-header h1 {
+    color: #FFFFFF;
+    font-size: 24px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  
+  .icons {
+    width: 100px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .search-container {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 10px 40px 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+  
+  .categories-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .categories-header h2 {
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: 500;
+  }
+  
+  .highlight {
+    color: #00C853;
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .create-button {
+    background-color: #FFFFFF;
+    color: #0A0E45;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .create-button:hover {
+    background-color: #f0f0f0;
+  }
+  
+  @media (max-width: 768px) {
+    .categories-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+  
+    .button-group {
+      width: 100%;
+    }
+  
+    .create-button {
+      flex: 1;
+      justify-content: center;
+    }
+  }

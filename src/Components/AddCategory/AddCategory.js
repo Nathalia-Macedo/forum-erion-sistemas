@@ -1,15 +1,26 @@
-import React, { useState } from 'react';
+
+
+import React, { useState, useContext } from 'react';
+import { ForumContext } from '../../Context/Dados';
 import './AddCategory.css';
 
-function NewCategoryModal({ isOpen, onClose, onSubmit }) {
+function NewCategoryModal({ isOpen, onClose }) {
   const [title, setTitle] = useState('');
+  const [subtitle, setSubtitle] = useState('');
   const [description, setDescription] = useState('');
+  const { criarCategoria, user } = useContext(ForumContext);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit({ title, description });
-    setTitle('');
-    setDescription('');
+    try {
+      await criarCategoria(title, subtitle, description);
+      setTitle('');
+      setSubtitle('');
+      setDescription('');
+      onClose();
+    } catch (error) {
+      console.error('Error creating category:', error);
+    }
   };
 
   if (!isOpen) return null;
@@ -35,7 +46,16 @@ function NewCategoryModal({ isOpen, onClose, onSubmit }) {
               required
             />
           </div>
-
+          <div className="form-group">
+            <label htmlFor="subtitle">Subtítulo:</label>
+            <input
+              id="subtitle"
+              type="text"
+              value={subtitle}
+              onChange={(e) => setSubtitle(e.target.value)}
+              required
+            />
+          </div>
           <div className="form-group">
             <label htmlFor="description">Descrição:</label>
             <textarea
@@ -45,7 +65,6 @@ function NewCategoryModal({ isOpen, onClose, onSubmit }) {
               required
             />
           </div>
-
           <button type="submit" className="submit-button">
             Postar categoria
           </button>
@@ -56,3 +75,5 @@ function NewCategoryModal({ isOpen, onClose, onSubmit }) {
 }
 
 export default NewCategoryModal;
+
+

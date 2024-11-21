@@ -16,11 +16,11 @@ const ForumHome = () => {
     <div className="forum-container">
       <Header/>
 
-      {/* <div className="categories-list">
+      <div className="categories-list">
         {categories.map((category, index) => (
           <CategoryCard key={index} category={category} />
         ))}
-      </div> */}
+      </div>
 
       <NewTopicModal 
         isOpen={isTopicModalOpen} 

@@ -18,39 +18,37 @@ export const ForumProvider = ({ children }) => {
     try {
       const [categoriesResponse, topicsResponse] = await Promise.all([
         fetch('https://josea4745.c44.integrator.host/api/v1/categoria', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          headers: { 'Authorization': `Bearer ${token}` }
         }),
         fetch('https://josea4745.c44.integrator.host/api/v1/topico', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);
-
+  
       if (!categoriesResponse.ok || !topicsResponse.ok) {
         throw new Error('Falha ao buscar categorias ou tópicos');
       }
-
+  
       const categoriesData = await categoriesResponse.json();
       const topicsData = await topicsResponse.json();
-
-      const categoriesWithPostCount = categoriesData.map(category => ({
-        ...category,
-        postCount: topicsData.filter(topic => topic.categoria.idCategoria === category.idCategoria).length
-      }));
-
+  
+      const categoriesWithPostCount = categoriesData.map(category => {
+        const postCount = topicsData.filter(topic => topic.categoria.idCategoria === category.idCategoria).length;
+        console.log(`Categoria ${category.titulo}: ${postCount} posts`); // Log para depuração
+        return {
+          ...category,
+          postCount
+        };
+      });
+  
       setCategories(categoriesWithPostCount);
-      console.log('Categorias obtidas com sucesso:', categoriesWithPostCount);
+      setTopicos(topicsData);
+      console.log('Categorias atualizadas:', categoriesWithPostCount); // Log para depuração
     } catch (error) {
       console.error('Erro ao buscar categorias e tópicos:', error);
     }
   };
 
-  //função que verifica se o usuário está logado
   const fetchUserData = async (token) => {
     try {
       const response = await fetch('https://josea4745.c44.integrator.host/api/v1/usuario/usuarioLogado', {
@@ -222,14 +220,13 @@ export const ForumProvider = ({ children }) => {
     }
   };
 
-  //função para criar tópico
   const criarTopico = async (titulo, idCategoria, descricao) => {
     const token = localStorage.getItem('authToken');
     if (!token || !user) {
       console.error('Token não encontrado ou usuário não autenticado.');
-      return;
+      throw new Error('Usuário não autenticado');
     }
-
+  
     const topicoData = {
       topico: titulo,
       descricao,
@@ -241,7 +238,7 @@ export const ForumProvider = ({ children }) => {
       },
       respostas: []
     };
-
+  
     try {
       const response = await fetch('https://josea4745.c44.integrator.host/api/v1/topico', {
         method: 'POST',
@@ -251,28 +248,19 @@ export const ForumProvider = ({ children }) => {
         },
         body: JSON.stringify(topicoData),
       });
-
-      if (!response.ok) {
-        throw new Error('Falha ao criar tópico');
+  
+      if (response.status === 201) {
+        console.log('Tópico criado com sucesso');
+        await fetchCategories(); // Atualiza as categorias e tópicos
+        return true;
+      } else {
+        throw new Error(`Falha ao criar tópico: ${response.status}`);
       }
-
-      const data = await response.json();
-      console.log('Tópico criado com sucesso:', data);
-      
-      const topicoWithRespostas = {
-        ...data,
-        respostas: data.respostas || []
-      };
-      
-      setTopicos(prevTopicos => [...prevTopicos, topicoWithRespostas]);
-      
-      return topicoWithRespostas;
     } catch (error) {
       console.error('Erro ao criar tópico:', error);
       throw error;
     }
   };
-
   return (
     <ForumContext.Provider value={{ 
       categories, 

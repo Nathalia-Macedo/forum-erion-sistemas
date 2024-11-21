@@ -7,6 +7,10 @@
     align-items: flex-start;
     margin-bottom: 15px;
   }
+
+  .category-card:hover{
+    cursor: pointer;
+  }
   
   .category-info {
     display: flex;

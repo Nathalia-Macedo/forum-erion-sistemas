@@ -1,5 +1,3 @@
-
-
 // import React, { useState, useContext } from 'react';
 // import { ForumContext } from '../../Context/Dados';
 // import './AddCategory.css';
@@ -12,14 +10,19 @@
 
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
+//     if (!user) {
+//       console.error('Usuário não está autenticado');
+//       return;
+//     }
 //     try {
 //       await criarCategoria(title, subtitle, description);
+//       console.log('Categoria criada com sucesso');
 //       setTitle('');
 //       setSubtitle('');
 //       setDescription('');
 //       onClose();
 //     } catch (error) {
-//       console.error('Error creating category:', error);
+//       console.error('Erro ao criar categoria:', error);
 //     }
 //   };
 
@@ -75,8 +78,6 @@
 // }
 
 // export default NewCategoryModal;
-
-
 import React, { useState, useContext } from 'react';
 import { ForumContext } from '../../Context/Dados';
 import './AddCategory.css';
@@ -85,6 +86,7 @@ function NewCategoryModal({ isOpen, onClose }) {
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [description, setDescription] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { criarCategoria, user } = useContext(ForumContext);
 
   const handleSubmit = async (e) => {
@@ -93,15 +95,18 @@ function NewCategoryModal({ isOpen, onClose }) {
       console.error('Usuário não está autenticado');
       return;
     }
+    setIsLoading(true);
     try {
       await criarCategoria(title, subtitle, description);
       console.log('Categoria criada com sucesso');
       setTitle('');
       setSubtitle('');
       setDescription('');
+      setIsLoading(false);
       onClose();
     } catch (error) {
       console.error('Erro ao criar categoria:', error);
+      setIsLoading(false);
     }
   };
 
@@ -112,7 +117,7 @@ function NewCategoryModal({ isOpen, onClose }) {
       <div className="modal-content">
         <div className="modal-header">
           <h2>Adicionar nova categoria</h2>
-          <button onClick={onClose} className="close-button">
+          <button onClick={onClose} className="close-button" disabled={isLoading}>
             &#x2715;
           </button>
         </div>
@@ -126,6 +131,7 @@ function NewCategoryModal({ isOpen, onClose }) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
+              disabled={isLoading}
             />
           </div>
           <div className="form-group">
@@ -136,6 +142,7 @@ function NewCategoryModal({ isOpen, onClose }) {
               value={subtitle}
               onChange={(e) => setSubtitle(e.target.value)}
               required
+              disabled={isLoading}
             />
           </div>
           <div className="form-group">
@@ -145,10 +152,11 @@ function NewCategoryModal({ isOpen, onClose }) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required
+              disabled={isLoading}
             />
           </div>
-          <button type="submit" className="submit-button">
-            Postar categoria
+          <button type="submit" className="submit-button" disabled={isLoading}>
+            {isLoading ? 'Carregando...' : 'Postar categoria'}
           </button>
         </form>
       </div>

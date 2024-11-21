@@ -1,20 +1,24 @@
-// // NewTopicModal.jsx
-// import React, { useState } from 'react';
+// import React, { useState, useContext } from 'react';
 // import { X, Link, FileText, Image } from 'lucide-react';
 // import './AddTopic.css';
-
+// import { ForumContext } from '../../Context/Dados';
 // const NewTopicModal = ({ isOpen, onClose }) => {
+//   const { categories, criarTopico } = useContext(ForumContext);
 //   const [formData, setFormData] = useState({
 //     title: '',
 //     category: '',
 //     description: ''
 //   });
 
-//   const handleSubmit = (e) => {
+//   const handleSubmit = async (e) => {
 //     e.preventDefault();
-//     // Handle form submission here
-//     console.log(formData);
-//     onClose();
+//     try {
+//       await criarTopico(formData.title, formData.category, formData.description);
+//       onClose();
+//     } catch (error) {
+//       console.error('Erro ao criar tópico:', error);
+//       // Handle error (e.g., show error message to user)
+//     }
 //   };
 
 //   if (!isOpen) return null;
@@ -49,9 +53,11 @@
 //               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
 //             >
 //               <option value="">Selecione uma categoria</option>
-//               <option value="programming">Programming</option>
-//               <option value="design">Design</option>
-//               <option value="off-topic">Off-topic</option>
+//               {categories.map((category) => (
+//                 <option key={category.idCategoria} value={category.idCategoria}>
+//                   {category.titulo}
+//                 </option>
+//               ))}
 //             </select>
 //           </div>
 
@@ -87,12 +93,11 @@
 // };
 
 // export default NewTopicModal;
-
-// NewTopicModal.jsx
 import React, { useState, useContext } from 'react';
 import { X, Link, FileText, Image } from 'lucide-react';
 import './AddTopic.css';
 import { ForumContext } from '../../Context/Dados';
+
 const NewTopicModal = ({ isOpen, onClose }) => {
   const { categories, criarTopico } = useContext(ForumContext);
   const [formData, setFormData] = useState({
@@ -100,14 +105,18 @@ const NewTopicModal = ({ isOpen, onClose }) => {
     category: '',
     description: ''
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       await criarTopico(formData.title, formData.category, formData.description);
+      setIsLoading(false);
       onClose();
     } catch (error) {
       console.error('Erro ao criar tópico:', error);
+      setIsLoading(false);
       // Handle error (e.g., show error message to user)
     }
   };
@@ -133,6 +142,7 @@ const NewTopicModal = ({ isOpen, onClose }) => {
               placeholder="Título"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              disabled={isLoading}
             />
           </div>
 
@@ -142,6 +152,7 @@ const NewTopicModal = ({ isOpen, onClose }) => {
               id="category"
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              disabled={isLoading}
             >
               <option value="">Selecione uma categoria</option>
               {categories.map((category) => (
@@ -159,23 +170,24 @@ const NewTopicModal = ({ isOpen, onClose }) => {
               placeholder="Descrição aqui..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              disabled={isLoading}
             />
           </div>
 
           <div className="attachment-icons">
-            <button type="button">
+            <button type="button" disabled={isLoading}>
               <Link size={20} />
             </button>
-            <button type="button">
+            <button type="button" disabled={isLoading}>
               <FileText size={20} />
             </button>
-            <button type="button">
+            <button type="button" disabled={isLoading}>
               <Image size={20} />
             </button>
           </div>
 
-          <button type="submit" className="submit-button">
-            Postar tópico
+          <button type="submit" className="submit-button" disabled={isLoading}>
+            {isLoading ? 'Carregando...' : 'Postar tópico'}
           </button>
         </form>
       </div>

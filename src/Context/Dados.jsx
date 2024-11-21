@@ -146,9 +146,9 @@ export const ForumProvider = ({ children }) => {
     const token = localStorage.getItem('authToken');
     if (!token || !user) {
       console.error('Token não encontrado ou usuário não autenticado.');
-      return;
+      throw new Error('Usuário não autenticado');
     }
-
+  
     const categoriaData = {
       titulo,
       subTitulo,
@@ -157,7 +157,7 @@ export const ForumProvider = ({ children }) => {
         idUsuario: user.idUsuario
       }
     };
-
+  
     try {
       const response = await fetch('https://josea4745.c44.integrator.host/api/v1/categoria', {
         method: 'POST',
@@ -167,17 +167,26 @@ export const ForumProvider = ({ children }) => {
         },
         body: JSON.stringify(categoriaData),
       });
-      console.log(response)
-      if (!response.ok) {
-        throw new Error('Falha ao criar categoria');
+  
+      console.log('Resposta do servidor:', response);
+  
+      if (response.status === 201) {
+        console.log('Categoria criada com sucesso');
+        
+        // Como não podemos acessar o corpo da resposta devido ao CORS,
+        // vamos criar um objeto com os dados que enviamos
+        const novaCategoria = {
+          ...categoriaData,
+          idCategoria: Date.now().toString(), // ID temporário
+          criadoEm: new Date().toISOString()
+        };
+        
+        setCategories(prevCategories => [...prevCategories, novaCategoria]);
+        
+        return novaCategoria;
+      } else {
+        throw new Error(`Falha ao criar categoria: ${response.status}`);
       }
-
-      const data = await response.json();
-      console.log('Categoria criada com sucesso:', data);
-      
-      setCategories(prevCategories => [...prevCategories, data]);
-      
-      return data;
     } catch (error) {
       console.error('Erro ao criar categoria:', error);
       throw error;

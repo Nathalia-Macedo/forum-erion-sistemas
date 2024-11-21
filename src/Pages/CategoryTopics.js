@@ -33,11 +33,6 @@ const CategoryTopics = () => {
   return (
     <div className="forum-container">
       <Header/>
-
-      {currentCategory && (
-        <h1 className="category-title">{currentCategory.titulo}</h1>
-      )}
-
       <div className="topics-list">
         {categoryTopics.map((topic) => (
           <TopicCard key={topic.idTopico} topic={topic} />

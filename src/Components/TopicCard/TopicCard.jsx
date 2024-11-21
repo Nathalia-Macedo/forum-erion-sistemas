@@ -60,7 +60,7 @@ const TopicCard = ({ topic }) => {
 
   return (
     <div className={`topic-card ${isExpanded ? 'expanded' : ''}`} onClick={toggleExpand}>
-      <h3 className="topic-title">{topic.topico}</h3>
+      <h3 className="topic-title">{topic.title}</h3>
       <p className="topic-author">
         Por: {topic.criadoPor.nome} • {formatDate(topic.criadoEm)}
       </p>

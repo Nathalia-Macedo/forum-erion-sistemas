@@ -107,6 +107,8 @@
     font-size: 0.9rem;
     cursor: pointer;
     text-decoration: underline;
+    text-align: center;
+    
   }
 
   .create-account:hover{

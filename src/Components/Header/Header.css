@@ -22,6 +22,10 @@
     width: 100px;
     display: flex;
   }
+
+
+
+  
   
   .search-container {
     position: relative;
@@ -73,7 +77,9 @@
   }
   
   .create-button:hover {
-    background-color: #f0f0f0;
+    background-color: #0A0E45;
+    color:white;
+    border:1px solid white;
   }
   
   @media (max-width: 768px) {

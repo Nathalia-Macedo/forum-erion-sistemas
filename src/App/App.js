@@ -1,56 +1,54 @@
+
+
+
+
 // import React from 'react';
-// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-// import Login from '../Pages/Login';
-// import Cadastro from '../Pages/Cadastro';
-// import './App.css'; // Importa o CSS geral para o App (caso tenha)
-// import ForumHome from '../Pages/FormHome';
-// import { ForumProvider } from '../Context/Dados';
-// import ForumPage from '../Pages/TopicPage';
+// import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+
 // function App() {
 //   return (
-//     <ForumProvider>
 //     <Router>
-//       <div className="App">
+//       <ForumProvider>
 //         <Routes>
-//           <Route path="/" element={<Login />} /> {/* Login na raiz */}
-//           <Route path="/cadastro" element={<Cadastro />} /> {/* Cadastro em outra rota */}
-//           <Route path="/home" element={<ForumHome/>}/>
-//           <Route path="/forum" element={<ForumPage/>}/>
+//           <Route path="/" element={<Login />} />
+//           <Route path="/home" element={<ForumHome />} />
+//           <Route path="/category/:categoryId" element={<CategoryTopics />} />
+//           <Route path="/topic/:idTopico" element={<TopicDetail />} />
 //         </Routes>
-        
-//       </div>
+//       </ForumProvider>
 //     </Router>
-//     </ForumProvider>
 //   );
 // }
 
 // export default App;
+
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import TopicPage from '../Pages/TopicPage'
+import ForumProvider from '../Context/Dados';
 import Login from '../Pages/Login';
-import Cadastro from '../Pages/Cadastro';
-import './App.css'; // Importa o CSS geral para o App (caso tenha)
 import ForumHome from '../Pages/FormHome';
-import { ForumProvider } from '../Context/Dados';
-import ForumPage from '../Pages/TopicPage';
-import CategoryTopics from '../Pages/CategoryTopics'; // Importe o novo componente
+import CategoryTopics from '../Pages/CategoryTopics';
+import TopicDetail from '../Pages/TopicDetails';
+import Cadastro from '../Pages/Cadastro';
+
 
 function App() {
   return (
-    <ForumProvider>
-      <Router>
-        <div className="App">
-          <Routes>
-            <Route path="/" element={<Login />} />
-            <Route path="/cadastro" element={<Cadastro />} />
-            <Route path="/home" element={<ForumHome />} />
-            <Route path="/forum" element={<ForumPage />} />
-            <Route path="/category/:categoryId" element={<CategoryTopics />} /> {/* Nova rota para CategoryTopics */}
-          </Routes>
-        </div>
-      </Router>
-    </ForumProvider>
+    <Router>
+      <ForumProvider>
+        <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/cadastro" element={<Cadastro />} />
+           <Route path="/home" element={<ForumHome />} />
+           <Route path="/category/:categoryId" element={<CategoryTopics />} />
+          <Route path="/" element={<TopicPage />} />
+          <Route path="/topic/:idTopico" element={<TopicDetail />} />
+        </Routes>
+      </ForumProvider>
+    </Router>
   );
 }
 
 export default App;
+

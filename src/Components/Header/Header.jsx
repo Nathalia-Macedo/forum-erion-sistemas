@@ -148,10 +148,10 @@ const Header = () => {
         <h2 dangerouslySetInnerHTML={{ __html: getHeaderText() }}></h2>
         <div className="button-group">
           <button className="create-button" onClick={() => setIsTopicModalOpen(true)}>
-            <Plus/>Criar novo tópico
+            <Plus className="plus-icon"/>Criar novo tópico
           </button>
           <button className="create-button" onClick={() => setIsCategoryModalOpen(true)}>
-            <Plus/>Criar nova Categoria
+            <Plus className="plus-icon"/>Criar nova Categoria
           </button>
         </div>
       </div>

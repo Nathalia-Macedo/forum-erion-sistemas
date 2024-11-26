@@ -57,6 +57,9 @@
     color: #666;
   }
   
+  body{
+    background-color: #0A0E45    ;
+  }
   .response-form {
     margin-top: 2rem;
     padding-top: 1.5rem;
@@ -116,7 +119,7 @@
     }
   }
   
-  /* Adicionando estilos para a seção de anexos */
+ /* Adicionando estilos para a seção de anexos */
 .attachments-section {
     margin-top: 1.5rem;
     padding: 1rem;
@@ -148,6 +151,8 @@
     color: #4a4a4a;
     text-decoration: none;
     transition: all 0.2s ease;
+    max-width: 100%;
+    overflow: hidden;
   }
   
   .attachment-item:hover {
@@ -158,6 +163,38 @@
   
   .attachment-item svg {
     color: #2563eb;
+    flex-shrink: 0;
+  }
+  
+  .attachment-item span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 28px); /* Accounting for icon width and some padding */
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .topic-detail-container {
+      margin: 1rem;
+      padding: 1.5rem;
+    }
+  
+    .topic-title {
+      font-size: 1.5rem;
+    }
+  
+    .response-card {
+      padding: 1rem;
+    }
+  
+    .attachments-list {
+      flex-direction: column;
+    }
+  
+    .attachment-item {
+      width: 100%;
+    }
   }
   
   /* Mantendo os estilos existentes... */

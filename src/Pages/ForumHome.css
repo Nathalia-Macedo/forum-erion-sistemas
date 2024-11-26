@@ -7,6 +7,7 @@
   box-sizing: border-box;
 }
 
+
 .forum-container {
   min-height: 100vh;
   background-color: #0A0E45;
@@ -83,7 +84,7 @@
   gap: 10px;
 }
 
-.create-button {
+/* .create-button {
   background-color: #FFFFFF;
   color: #0A0E45;
   border: none;
@@ -95,11 +96,11 @@
   display: flex;
   align-items: center;
   gap: 5px;
-}
+} */
 
-.create-button:hover {
+/* .create-button:hover {
   background-color: #f0f0f0;
-}
+} */
 
 .categories-list {
   display: flex;

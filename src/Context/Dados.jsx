@@ -244,7 +244,7 @@ export const ForumProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      
+      console.log(data)
       const topicosWithRespostas = data.map(topico => ({
         ...topico,
         respostas: topico.respostas || []
@@ -314,73 +314,115 @@ export const ForumProvider = ({ children }) => {
   };
   
   
-  
-  
+  const criarCurtida = async (idTopico) => {
+  const token = localStorage.getItem('authToken');
+  if (!token || !user) {
+    throw new Error('Usuário não autenticado');
+  }
 
-
-
-  
-  const criarResposta = useCallback(async (idTopico, descricao) => {
-    const token = localStorage.getItem('authToken');
-    if (!token || !user) {
-      throw new Error('Usuário não autenticado');
-    }
-  
-    const respostaData = {
-      descricao,
-      topico: {
-        idTopico
+  try {
+    const response = await fetch('https://josea4745.c44.integrator.host/api/v1/curtida', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       },
-      criadoPor: {
-        idUsuario: user.idUsuario
-      }
-    };
-  
-    try {
-      const response = await fetch('https://josea4745.c44.integrator.host/api/v1/resposta', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+      body: JSON.stringify({
+        curtidoPor: {
+          idUsuario: user.idUsuario
         },
-        body: JSON.stringify(respostaData),
-      });
-  
-      console.log('Resposta do servidor:', response);
-  
-      if (response.status === 200 || response.status === 201) {
-        console.log('Resposta criada com sucesso');
-        
-        // Criar um objeto de resposta simulado, já que não podemos acessar os dados reais devido ao CORS
-        const novaResposta = {
-          idResposta: Date.now(), // ID temporário
-          descricao,
-          criadoPor: {
-            idUsuario: user.idUsuario,
-            nome: user.nome
-          },
-          criadoEm: new Date().toISOString()
-        };
-        
-        // Atualiza as respostas localmente
-        setRespostas(prev => ({
-          ...prev,
-          [idTopico]: [...(prev[idTopico] || []), novaResposta]
-        }));
-  
-        return novaResposta;
-      } else {
-        throw new Error(`Falha ao criar resposta: ${response.status}`);
-      }
-    } catch (error) {
-      console.error('Erro ao criar resposta:', error);
-      throw error;
+        topico: {
+          idTopico: idTopico
+        }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Falha ao curtir tópico');
     }
-  }, [user]);
+
+    // Refresh the topics to get updated like count
+    await fetchTopicos();
+    return true;
+  } catch (error) {
+    console.error('Erro ao criar curtida:', error);
+    throw error;
+  }
+};
+  
+
+
+
+  
+ 
+
+
+const criarResposta = useCallback(async (idTopico, descricao) => {
+  const token = localStorage.getItem('authToken');
+  if (!token || !user) {
+    throw new Error('Usuário não autenticado');
+  }
+
+  const respostaData = {
+    descricao,
+    topico: {
+      idTopico
+    },
+    criadoPor: {
+      idUsuario: user.idUsuario
+    }
+  };
+
+  try {
+    const response = await fetch('https://josea4745.c44.integrator.host/api/v1/resposta', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(respostaData),
+    });
+
+    if (response.ok && response.status === 201) {
+      console.log('Resposta criada com sucesso');
+      
+      // Criar um objeto de resposta simulado, já que não podemos acessar os dados reais devido ao CORS
+      const novaResposta = {
+        idResposta: Date.now(), // ID temporário
+        descricao,
+        criadoPor: {
+          idUsuario: user.idUsuario,
+          nome: user.nome
+        },
+        criadoEm: new Date().toISOString()
+      };
+      
+      // Atualiza as respostas localmente
+      setRespostas(prev => ({
+        ...prev,
+        [idTopico]: [...(prev[idTopico] || []), novaResposta]
+      }));
+
+      return novaResposta;
+    } else {
+      throw new Error(`Falha ao criar resposta: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Erro ao criar resposta:', error);
+    throw error;
+  }
+}, [user]);
+ 
+
+
+
+
+
 
   return (
     <ForumContext.Provider value={{ 
       categories, 
+      criarCurtida,
       setCategories, 
       cadastrarUsuario, 
       loginUser, 

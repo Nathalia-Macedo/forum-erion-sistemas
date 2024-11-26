@@ -8,6 +8,34 @@
   margin: 0 auto;
 }
 
+.like-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.like-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.like-button.liked {
+  background-color: #2563eb;
+  color: white;
+}
+
+.like-button.liked:hover {
+  background-color: #1d4ed8;
+}
+
+.like-button:disabled {
+  cursor: default;
+}
+
 /* Topic card */
 .topic-card {
   background: white;

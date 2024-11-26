@@ -39,12 +39,6 @@ const CategoryTopics = () => {
         ))}
       </div>
 
-      <button 
-        className="new-topic-button"
-        onClick={() => setIsTopicModalOpen(true)}
-      >
-        Novo Tópico
-      </button>
 
       <NewTopicModal 
         isOpen={isTopicModalOpen} 

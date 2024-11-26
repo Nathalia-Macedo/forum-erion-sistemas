@@ -116,4 +116,50 @@
     }
   }
   
+  /* Adicionando estilos para a seção de anexos */
+.attachments-section {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .attachments-section h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+  }
+  
+  .attachments-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .attachment-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    color: #4a4a4a;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  
+  .attachment-item:hover {
+    background-color: #f3f4f6;
+    border-color: #d1d5db;
+    color: #2563eb;
+  }
+  
+  .attachment-item svg {
+    color: #2563eb;
+  }
+  
+  /* Mantendo os estilos existentes... */
+  
   

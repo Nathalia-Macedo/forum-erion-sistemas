@@ -65,6 +65,37 @@
     padding-top: 1.5rem;
     border-top: 1px solid #e5e7eb;
   }
+
+
+
+
+  /* Existing styles... */
+
+.responses-container {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 10px;
+  }
+  
+  .load-more-button {
+    display: block;
+    margin: 20px auto 0;
+    padding: 10px 20px;
+    background-color: #1d4ed8;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .load-more-button:hover {
+    background-color: #0A0E45;
+  }
+  
+  /* Existing styles... */
+  
+  
   
   .response-form textarea {
     width: 100%;

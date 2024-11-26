@@ -31,6 +31,7 @@ export const ForumProvider = ({ children }) => {
         }
       });
   
+      console.log(response)
       if (!response.ok) {
         throw new Error(`Falha ao buscar tópico: ${response.status}`);
       }
@@ -296,6 +297,8 @@ export const ForumProvider = ({ children }) => {
         },
         body: formData
       });
+
+      console.log(response)
   
       // Log da resposta para debug
       const responseText = await response.text();
@@ -414,7 +417,25 @@ const criarResposta = useCallback(async (idTopico, descricao) => {
 }, [user]);
  
 
+const searchAll = useCallback((searchTerm) => {
+  const lowercaseTerm = searchTerm.toLowerCase();
+  
+  const matchingTopics = topicos.filter(topico => 
+    topico.titulo.toLowerCase().includes(lowercaseTerm) || 
+    topico.descricao.toLowerCase().includes(lowercaseTerm)
+  ).map(topico => ({ ...topico, type: 'Tópico' }));
 
+  const matchingCategories = categories.filter(categoria => 
+    categoria.titulo.toLowerCase().includes(lowercaseTerm) || 
+    categoria.descricao.toLowerCase().includes(lowercaseTerm)
+  ).map(categoria => ({ ...categoria, type: 'Categoria' }));
+
+  const matchingUsers = user ? [user].filter(u => 
+    u.nome.toLowerCase().includes(lowercaseTerm)
+  ).map(u => ({ ...u, type: 'Usuário' })) : [];
+
+  return [...matchingTopics, ...matchingCategories, ...matchingUsers];
+}, [topicos, categories, user]);
 
 
 
@@ -426,6 +447,7 @@ const criarResposta = useCallback(async (idTopico, descricao) => {
       setCategories, 
       cadastrarUsuario, 
       loginUser, 
+      searchAll,
       user, 
       criarCategoria,
       topicos,

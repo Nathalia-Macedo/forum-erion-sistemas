@@ -1,4 +1,52 @@
 /* Header.css */
+
+/* Adicione estes estilos ao seu arquivo Header.css */
+
+.search-container {
+  position: relative;
+}
+
+.search-results-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius:5px;
+  border-top: none;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.search-result-item {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.search-result-item:hover {
+  background-color: #f5f5f5;
+}
+
+.result-type {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 2px;
+}
+
+.result-title {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.result-preview {
+  font-size: 14px;
+  color: #333;
+}
+
+
 .header-container {
     background-color: #0A0E45;
     padding: 20px;
@@ -38,6 +86,7 @@
     border: none;
     border-radius: 5px;
     font-size: 14px;
+    outline: none;
   }
   
   .categories-header {

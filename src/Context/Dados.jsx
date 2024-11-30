@@ -11,6 +11,8 @@ export const ForumProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const BASE_URL = 'https://ander4793.c44.integrator.host/api/v1';
+
   const fetchTopicoById = useCallback(async (idTopico) => {
     setIsLoading(true);
     setError(null);
@@ -23,7 +25,7 @@ export const ForumProvider = ({ children }) => {
     }
     
     try {
-      const response = await fetch(`https://josea4745.c44.integrator.host/api/v1/topico/${idTopico}`, {
+      const response = await fetch(`${BASE_URL}/topico/${idTopico}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -31,28 +33,23 @@ export const ForumProvider = ({ children }) => {
         }
       });
   
-      console.log(response)
       if (!response.ok) {
         throw new Error(`Falha ao buscar tópico: ${response.status}`);
       }
   
       const data = await response.json();
-      console.log('Tópico obtido:', data);
+      console.log(data)
       setCurrentTopic(data);
-      // Atualizar as respostas diretamente do tópico
       setRespostas(prev => ({ ...prev, [idTopico]: data.respostas || [] }));
-      setIsLoading(false);
       return data;
     } catch (error) {
-      console.error('Erro ao buscar tópico:', error);
       setError(error.message);
       setCurrentTopic(null);
-      setIsLoading(false);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   }, []);
-
- 
 
   const fetchCategories = useCallback(async () => {
     const token = localStorage.getItem('authToken');
@@ -63,10 +60,10 @@ export const ForumProvider = ({ children }) => {
     
     try {
       const [categoriesResponse, topicsResponse] = await Promise.all([
-        fetch('https://josea4745.c44.integrator.host/api/v1/categoria', {
+        fetch(`${BASE_URL}/categoria`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch('https://josea4745.c44.integrator.host/api/v1/topico', {
+        fetch(`${BASE_URL}/topico`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);
@@ -93,15 +90,25 @@ export const ForumProvider = ({ children }) => {
     }
   }, []);
 
+
+
+
+
+
+
+
+
+
+  
   const fetchUserData = useCallback(async (token) => {
     try {
-      const response = await fetch('https://josea4745.c44.integrator.host/api/v1/usuario/usuarioLogado', {
+      const response = await fetch(`${BASE_URL}/usuario/usuarioLogado`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-
+      console.log(response)
       if (!response.ok) {
         throw new Error('Falha ao buscar dados do usuário');
       }
@@ -122,33 +129,42 @@ export const ForumProvider = ({ children }) => {
       fetchCategories();
     }
   }, [fetchUserData, fetchCategories]);
+ 
 
-  const loginUser = async (email, senha) => {
-    const userCredentials = { email, senha };
-  
-    try {
-      const response = await fetch('https://josea4745.c44.integrator.host/api/v1/auth', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userCredentials),
-      });
-  
-      const data = await response.json();
-      if (!data) {
-        throw new Error('Falha na autenticação');
-      }
-      localStorage.setItem('authToken', data.token);
-      await fetchUserData(data.token);
-      await fetchCategories();
-      return data;
-    } catch (error) {
-      console.error('Erro ao fazer login:', error);
-      setUser(null);
-      throw error;
+const loginUser = async (email, senha) => {
+  const userCredentials = { email, senha };
+
+  try {
+    const response = await fetch(`${BASE_URL}/auth`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userCredentials),
+    });
+    console.log(response)
+    if (!response.ok) {
+      throw new Error(`Falha na autenticação: ${response.status}`);
     }
-  };
+
+    const data = await response.json();
+    
+    if (!data || !data.token) {
+      throw new Error('Token não recebido do servidor');
+    }
+
+    localStorage.setItem('authToken', data.token);
+    await Promise.all([fetchUserData(data.token), fetchCategories()]);
+
+    return data;
+  } catch (error) {
+    console.error('Erro ao fazer login:', error);
+    setUser(null);
+    throw error;
+  }
+};
+
+
 
   const logout = () => {
     localStorage.removeItem('authToken');
@@ -156,25 +172,28 @@ export const ForumProvider = ({ children }) => {
     setCategories([]);
   };
 
+
+
   const cadastrarUsuario = async (nome, cpf, email, senha) => {
     const userData = { nome, cpf, email, senha };
-
+  
     try {
-      const response = await fetch('https://josea4745.c44.integrator.host/api/v1/usuario', {
+      const response = await fetch(`${BASE_URL}/usuario`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(userData),
       });
-
-      if (!response.ok) {
-        throw new Error('Falha no cadastro');
+      let data 
+      console.log('Status da resposta:', response.status);
+      if(response.status==201){
+        data= "deu certo"
+        console.log('Usuário cadastrado com sucesso:', data);
+        return data;
       }
-
-      const data = await response.json();
-      console.log('Usuário cadastrado com sucesso:', data);
-      return data;
+  
+   
     } catch (error) {
       console.error('Erro ao cadastrar usuário:', error);
       throw error;
@@ -197,7 +216,7 @@ export const ForumProvider = ({ children }) => {
     };
   
     try {
-      const response = await fetch('https://josea4745.c44.integrator.host/api/v1/categoria', {
+      const response = await fetch(`${BASE_URL}/categoria`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -206,24 +225,69 @@ export const ForumProvider = ({ children }) => {
         body: JSON.stringify(categoriaData),
       });
   
-      if (response.status === 201) {
-        const novaCategoria = {
-          ...categoriaData,
-          idCategoria: Date.now().toString(),
-          criadoEm: new Date().toISOString()
-        };
-        
-        setCategories(prevCategories => [...prevCategories, novaCategoria]);
-        
-        return novaCategoria;
-      } else {
-        throw new Error(`Falha ao criar categoria: ${response.status}`);
-      }
+      const data = await response.json();
+      console.log('Resposta da API:', data);
+  
+      const novaCategoria = {
+        ...data, // Usar os dados retornados pela API
+        criadoEm: new Date().toISOString()
+      };
+      
+      setCategories(prevCategories => [...prevCategories, novaCategoria]);
+      
+      return novaCategoria;
     } catch (error) {
       console.error('Erro ao criar categoria:', error);
       throw error;
     }
   };
+
+
+  // const criarCategoria = async (titulo, subTitulo, descricao) => {
+  //   const token = localStorage.getItem('authToken');
+  //   if (!token || !user) {
+  //     throw new Error('Usuário não autenticado');
+  //   }
+  
+  //   const categoriaData = {
+  //     titulo,
+  //     subTitulo,
+  //     descricao,
+  //     criadoPor: {
+  //       idUsuario: user.idUsuario
+  //     }
+  //   };
+  
+  //   try {
+  //     const response = await fetch(`${BASE_URL}/categoria`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': `Bearer ${token}`
+  //       },
+  //       body: JSON.stringify(categoriaData),
+  //     });
+  //     console.log(response)
+  //     let data = await response.json()
+  //     console.log(data)
+  //     if (data.status === 201) {
+  //       const novaCategoria = {
+  //         ...categoriaData,
+  //         idCategoria: Date.now().toString(),
+  //         criadoEm: new Date().toISOString()
+  //       };
+        
+  //       setCategories(prevCategories => [...prevCategories, novaCategoria]);
+        
+  //       return novaCategoria;
+  //     } else {
+  //       throw new Error(`Falha ao criar categoria: ${response.status}`);
+  //     }
+  //   } catch (error) {
+  //     console.error('Erro ao criar categoria:', error);
+  //     throw error;
+  //   }
+  // };
 
   const fetchTopicos = useCallback(async () => {
     const token = localStorage.getItem('authToken');
@@ -233,7 +297,7 @@ export const ForumProvider = ({ children }) => {
     }
     
     try {
-      const response = await fetch('https://josea4745.c44.integrator.host/api/v1/topico', {
+      const response = await fetch(`${BASE_URL}/topico`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -289,7 +353,7 @@ export const ForumProvider = ({ children }) => {
     }
   
     try {
-      const response = await fetch('https://josea4745.c44.integrator.host/api/v1/topico', {
+      const response = await fetch(`${BASE_URL}/topico`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -324,7 +388,7 @@ export const ForumProvider = ({ children }) => {
   }
 
   try {
-    const response = await fetch('https://josea4745.c44.integrator.host/api/v1/curtida', {
+    const response = await fetch(`${BASE_URL}/curtida`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -377,7 +441,7 @@ const criarResposta = useCallback(async (idTopico, descricao) => {
   };
 
   try {
-    const response = await fetch('https://josea4745.c44.integrator.host/api/v1/resposta', {
+    const response = await fetch(`${BASE_URL}/resposta`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

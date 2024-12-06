@@ -1,184 +1,4 @@
-// import React, { useState, useContext } from 'react';
-// import { X, Link, FileText, Image } from 'lucide-react';
-// import './AddTopic.css';
-// import { ForumContext } from '../../Context/Dados';
 
-// const NewTopicModal = ({ isOpen, onClose }) => {
-//   const { categories, criarTopico } = useContext(ForumContext);
-//   const [formData, setFormData] = useState({
-//     title: '',
-//     category: '',
-//     description: ''
-//   });
-//   const [isLoading, setIsLoading] = useState(false);
-//   const [showLinkInput, setShowLinkInput] = useState(false);
-//   const [linkUrl, setLinkUrl] = useState('');
-//   const [files, setFiles] = useState([]);
-//   const [images, setImages] = useState([]);
-//   const [links, setLinks] = useState([]);
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     setIsLoading(true);
-//     try {
-//       const allFiles = [...files, ...images];
-//       const arquivo = allFiles.length > 0 ? allFiles[0] : null;
-//       await criarTopico(formData.title, formData.category, formData.description, arquivo, links);
-//       setIsLoading(false);
-//       onClose();
-//     } catch (error) {
-//       console.error('Erro ao criar tópico:', error);
-//       setIsLoading(false);
-//       // Handle error (e.g., show error message to user)
-//     }
-//   };
-
-//   const handleLinkToggle = () => {
-//     setShowLinkInput(!showLinkInput);
-//   };
-
-//   const handleLinkSubmit = (e) => {
-//     e.preventDefault();
-//     if (linkUrl) {
-//       setLinks(prev => [...prev, linkUrl]);
-//       setLinkUrl('');
-//       setShowLinkInput(false);
-//     }
-//   };
-
-//   const handleFileUpload = (e) => {
-//     const uploadedFiles = Array.from(e.target.files);
-//     setFiles(prev => [...prev, ...uploadedFiles]);
-//   };
-
-//   const handleImageUpload = (e) => {
-//     const uploadedImages = Array.from(e.target.files);
-//     setImages(prev => [...prev, ...uploadedImages]);
-//   };
-
-//   if (!isOpen) return null;
-
-//   return (
-//     <div className="modal-overlay">
-//       <div className="modal-content">
-//         <div className="modal-header">
-//           <h2>Adicionar novo tópico</h2>
-//           <button onClick={onClose} className="close-button">
-//             <X size={24} color="white" />
-//           </button>
-//         </div>
-
-//         <form onSubmit={handleSubmit}>
-//           <div className="form-group">
-//             <label htmlFor="title">Título:</label>
-//             <input
-//               type="text"
-//               id="title"
-//               placeholder="Título"
-//               value={formData.title}
-//               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-//               disabled={isLoading}
-//             />
-//           </div>
-
-//           <div className="form-group">
-//             <label htmlFor="category">Categoria:</label>
-//             <select
-//               id="category"
-//               value={formData.category}
-//               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-//               disabled={isLoading}
-//             >
-//               <option value="">Selecione uma categoria</option>
-//               {categories.map((category) => (
-//                 <option key={category.idCategoria} value={category.idCategoria}>
-//                   {category.titulo}
-//                 </option>
-//               ))}
-//             </select>
-//           </div>
-
-//           <div className="form-group">
-//             <label htmlFor="description">Descrição:</label>
-//             <textarea
-//               id="description"
-//               placeholder="Descrição aqui..."
-//               value={formData.description}
-//               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-//               disabled={isLoading}
-//             />
-//           </div>
-
-//           <div className="attachment-icons">
-//             <button type="button" onClick={handleLinkToggle} disabled={isLoading}>
-//               <Link size={20} />
-//             </button>
-//             <label htmlFor="file-upload" className="file-upload-label">
-//               <FileText size={20} />
-//               <input
-//                 type="file"
-//                 id="file-upload"
-//                 onChange={handleFileUpload}
-//                 disabled={isLoading}
-//                 style={{ display: 'none' }}
-//               />
-//             </label>
-//             <label htmlFor="image-upload" className="file-upload-label">
-//               <Image size={20} />
-//               <input
-//                 type="file"
-//                 id="image-upload"
-//                 onChange={handleImageUpload}
-//                 accept="image/*"
-//                 disabled={isLoading}
-//                 style={{ display: 'none' }}
-//               />
-//             </label>
-//           </div>
-
-//           {showLinkInput && (
-//             <div className="link-input-container">
-//               <input
-//                 type="url"
-//                 placeholder="Insira o URL do link"
-//                 value={linkUrl}
-//                 onChange={(e) => setLinkUrl(e.target.value)}
-//                 disabled={isLoading}
-//               />
-//               <button type="button" onClick={handleLinkSubmit} disabled={isLoading}>
-//                 Adicionar Link
-//               </button>
-//             </div>
-//           )}
-
-//           {(files.length > 0 || images.length > 0 || links.length > 0) && (
-//             <div className="file-list">
-//               <h4>Arquivos e links anexados:</h4>
-//               <ul>
-//                 {files.map((file, index) => (
-//                   <li key={`file-${index}`}>{file.name}</li>
-//                 ))}
-//                 {images.map((image, index) => (
-//                   <li key={`image-${index}`}>{image.name}</li>
-//                 ))}
-//                 {links.map((link, index) => (
-//                   <li key={`link-${index}`}>{link}</li>
-//                 ))}
-//               </ul>
-//               <p className="file-warning">Nota: Apenas o primeiro arquivo será enviado devido a limitações da API. Todos os links serão incluídos.</p>
-//             </div>
-//           )}
-
-//           <button type="submit" className="submit-button" disabled={isLoading}>
-//             {isLoading ? 'Carregando...' : 'Postar tópico'}
-//           </button>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default NewTopicModal;
 
 import React, { useState, useContext } from 'react';
 import { X, Link, FileText, Image } from 'lucide-react';
@@ -203,8 +23,7 @@ const NewTopicModal = ({ isOpen, onClose }) => {
     setIsLoading(true);
     try {
       const allFiles = [...files, ...images];
-      const arquivo = allFiles.length > 0 ? allFiles[0] : null;
-      await criarTopico(formData.title, formData.category, formData.description, arquivo, links);
+      await criarTopico(formData.title, formData.category, formData.description, allFiles, links);
       setIsLoading(false);
       onClose();
     } catch (error) {
@@ -237,11 +56,22 @@ const NewTopicModal = ({ isOpen, onClose }) => {
     setImages(prev => [...prev, ...uploadedImages]);
   };
 
+  const removeFile = (index, type) => {
+    if (type === 'file') {
+      setFiles(prev => prev.filter((_, i) => i !== index));
+    } else if (type === 'image') {
+      setImages(prev => prev.filter((_, i) => i !== index));
+    } else if (type === 'link') {
+      setLinks(prev => prev.filter((_, i) => i !== index));
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-[#0A0E45] rounded-lg p-6 w-11/12 max-w-lg text-white">
+    <>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4 overflow-y-auto">
+      <div className="bg-[#0A0E45] rounded-lg p-6 w-11/12 max-w-lg text-white max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold">Adicionar novo tópico</h2>
           <button onClick={onClose} className="text-white hover:opacity-80">
@@ -313,6 +143,7 @@ const NewTopicModal = ({ isOpen, onClose }) => {
               <input
                 type="file"
                 id="image-upload"
+                accept="image/*"
                 onChange={handleImageUpload}
                 multiple
                 disabled={isLoading}
@@ -345,17 +176,46 @@ const NewTopicModal = ({ isOpen, onClose }) => {
           {(files.length > 0 || images.length > 0 || links.length > 0) && (
             <div className="mt-5 mb-6">
               <h4 className="text-base font-medium mb-2">Arquivos e links anexados:</h4>
-              <ul className="list-none pl-0">
-                {files.map((file, index) => (
-                  <li key={`file-${index}`} className="text-sm mb-1">{file.name}</li>
-                ))}
-                {images.map((image, index) => (
-                  <li key={`image-${index}`} className="text-sm mb-1">{image.name}</li>
-                ))}
-                {links.map((link, index) => (
-                  <li key={`link-${index}`} className="text-sm mb-1">{link}</li>
-                ))}
-              </ul>
+              <div className="max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                <ul className="list-none pl-0 space-y-2">
+                  {files.map((file, index) => (
+                    <li key={`file-${index}`} className="text-sm flex justify-between items-center bg-[#1a1f6d] p-2 rounded">
+                      <span className="truncate flex-1 mr-2">{file.name}</span>
+                      <button 
+                        type="button" 
+                        onClick={() => removeFile(index, 'file')} 
+                        className="text-red-500 hover:text-red-700 flex-shrink-0"
+                      >
+                        <X size={16} />
+                      </button>
+                    </li>
+                  ))}
+                  {images.map((image, index) => (
+                    <li key={`image-${index}`} className="text-sm flex justify-between items-center bg-[#1a1f6d] p-2 rounded">
+                      <span className="truncate flex-1 mr-2">{image.name}</span>
+                      <button 
+                        type="button" 
+                        onClick={() => removeFile(index, 'image')} 
+                        className="text-red-500 hover:text-red-700 flex-shrink-0"
+                      >
+                        <X size={16} />
+                      </button>
+                    </li>
+                  ))}
+                  {links.map((link, index) => (
+                    <li key={`link-${index}`} className="text-sm flex justify-between items-center bg-[#1a1f6d] p-2 rounded">
+                      <span className="truncate flex-1 mr-2">{link}</span>
+                      <button 
+                        type="button" 
+                        onClick={() => removeFile(index, 'link')} 
+                        className="text-red-500 hover:text-red-700 flex-shrink-0"
+                      >
+                        <X size={16} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           )}
 
@@ -369,8 +229,24 @@ const NewTopicModal = ({ isOpen, onClose }) => {
         </form>
       </div>
     </div>
+    <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #1a1f6d;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #3f51b5;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #303f9f;
+        }
+      `}</style>
+    </>
   );
 };
 
 export default NewTopicModal;
-

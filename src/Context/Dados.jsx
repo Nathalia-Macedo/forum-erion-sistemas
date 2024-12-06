@@ -404,7 +404,7 @@ export const ForumProvider = ({ children }) => {
     }
   }, []);
 
-  const criarTopico = async (titulo, idCategoria, descricao, arquivo) => {
+  const criarTopico = async (titulo, idCategoria, descricao, arquivos, links) => {
     const token = localStorage.getItem('authToken');
     if (!token || !user) {
       throw new Error('Usuário não autenticado');
@@ -418,15 +418,24 @@ export const ForumProvider = ({ children }) => {
       },
       criadoPor: {
         idUsuario: user.idUsuario
-      }
+      },
+      links: links
     };
   
     const formData = new FormData();
     formData.append('topico', JSON.stringify(topicoData));
     
-    if (arquivo) {
-      formData.append('file', arquivo);
+    // Modificado: agora usando 'file' como chave para cada arquivo
+    if (arquivos && arquivos.length > 0) {
+      arquivos.forEach(arquivo => {
+        formData.append('file', arquivo);
+      });
     }
+  
+    // Adicionando logs para debug
+    console.log('Dados do tópico:', topicoData);
+    console.log('Arquivos:', arquivos);
+    console.log('FormData entries:', [...formData.entries()]);
   
     try {
       const response = await fetch(`${BASE_URL}/topico`, {
@@ -436,9 +445,8 @@ export const ForumProvider = ({ children }) => {
         },
         body: formData
       });
-
-      console.log(response);
   
+      console.log('Response status:', response.status);
       const responseText = await response.text();
       console.log('Resposta do servidor:', responseText);
   
@@ -453,6 +461,8 @@ export const ForumProvider = ({ children }) => {
       throw error;
     }
   };
+  
+  
   
   const criarCurtida = async (idTopico) => {
     const token = localStorage.getItem('authToken');
@@ -758,6 +768,46 @@ export const ForumProvider = ({ children }) => {
   }, [checkAuthToken]);
 
 
+  const updatePassword = async (idUsuario, senhaAtual, novaSenha) => {
+    console.log('updatePassword called', { idUsuario, senhaAtual, novaSenha });
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.error('Token não encontrado');
+      throw new Error('Usuário não autenticado');
+    }
+  
+    try {
+      console.log('Sending request to:', `${BASE_URL}/usuario/alterar-senha/${idUsuario}`);
+      const response = await fetch(`${BASE_URL}/usuario/alterar-senha/${idUsuario}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          idUsuario,
+          senhaAtual,
+          novaSenha,
+          confirmaSenha: novaSenha
+        })
+      });
+  
+      console.log('Response received:', response);
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error response:', errorData);
+        throw new Error(errorData.message || 'Falha ao atualizar senha');
+      }
+  
+      console.log('Password update successful');
+      return true;
+    } catch (error) {
+      console.error('Erro ao atualizar senha:', error);
+      throw error;
+    }
+  };
+  
+  
   
   return (
     <ForumContext.Provider value={{ 
@@ -765,6 +815,7 @@ export const ForumProvider = ({ children }) => {
       alterarPermissaoUsuario,
       criarCurtida,
       setCategories, 
+      updatePassword,
       cadastrarUsuario, 
       fetchUserProfile,
       loginUser, 

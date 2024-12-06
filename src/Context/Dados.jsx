@@ -10,8 +10,34 @@ export const ForumProvider = ({ children }) => {
   const [currentTopic, setCurrentTopic] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [allUsers, setAllUsers] = useState([]);
+
 
   const BASE_URL = 'https://ander4793.c44.integrator.host/api/v1';
+
+
+  const fetchAllUsers = useCallback(async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.error('Token não encontrado. Usuário não está autenticado.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${BASE_URL}/usuario/lista`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao buscar lista de usuários');
+      }
+
+      const usersData = await response.json();
+      setAllUsers(usersData);
+    } catch (error) {
+      console.error('Erro ao buscar lista de usuários:', error);
+    }
+  }, []);
 
   const fetchTopicoById = useCallback(async (idTopico) => {
     setIsLoading(true);
@@ -91,7 +117,27 @@ export const ForumProvider = ({ children }) => {
   }, []);
 
 
+  const deletarResposta = async (idResposta) => {
+    const token = localStorage.getItem('authToken');
+    try {
+      const response = await fetch(`${BASE_URL}/resposta/${idResposta}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`, // Assumindo que o token está disponível no contexto
+        },
+      });
 
+      if (response.status !== 200) {
+        throw new Error('Falha ao deletar resposta');
+      }
+
+      console.log('Resposta deletada com sucesso');
+      return true;
+    } catch (error) {
+      console.error('Erro ao deletar resposta:', error);
+      throw error;
+    }
+  };
 
 
 
@@ -114,6 +160,7 @@ export const ForumProvider = ({ children }) => {
       }
 
       const userData = await response.json();
+      console.log(userData)
       setUser(userData);
     } catch (error) {
       console.error('Erro ao buscar dados do usuário:', error);
@@ -131,41 +178,43 @@ export const ForumProvider = ({ children }) => {
   }, [fetchUserData, fetchCategories]);
  
 
-const loginUser = async (email, senha) => {
-  const userCredentials = { email, senha };
+  const loginUser = async (email, senha) => {
+    const userCredentials = { email, senha };
 
-  try {
-    const response = await fetch(`${BASE_URL}/auth`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(userCredentials),
-    });
-    console.log(response)
-    if (!response.ok) {
-      throw new Error(`Falha na autenticação: ${response.status}`);
+    try {
+      const response = await fetch(`${BASE_URL}/auth`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userCredentials),
+      });
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          throw new Error('Acesso negado. Sua conta pode não estar ativada ou você não tem permissão para acessar.');
+        }
+        throw new Error(`Falha na autenticação: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data || !data.token) {
+        throw new Error('Token não recebido do servidor');
+      }
+
+      localStorage.setItem('authToken', data.token);
+      const userData = await fetchUserData(data.token);
+      setUser(userData);
+      await fetchCategories();
+
+      return { token: data.token, user: userData };
+    } catch (error) {
+      console.error('Erro ao fazer login:', error);
+      setUser(null);
+      throw error;
     }
-
-    const data = await response.json();
-    
-    if (!data || !data.token) {
-      throw new Error('Token não recebido do servidor');
-    }
-
-    localStorage.setItem('authToken', data.token);
-    await Promise.all([fetchUserData(data.token), fetchCategories()]);
-
-    return data;
-  } catch (error) {
-    console.error('Erro ao fazer login:', error);
-    setUser(null);
-    throw error;
-  }
-};
-
-
-
+  };
   const logout = () => {
     localStorage.removeItem('authToken');
     setUser(null);
@@ -241,53 +290,6 @@ const loginUser = async (email, senha) => {
       throw error;
     }
   };
-
-
-  // const criarCategoria = async (titulo, subTitulo, descricao) => {
-  //   const token = localStorage.getItem('authToken');
-  //   if (!token || !user) {
-  //     throw new Error('Usuário não autenticado');
-  //   }
-  
-  //   const categoriaData = {
-  //     titulo,
-  //     subTitulo,
-  //     descricao,
-  //     criadoPor: {
-  //       idUsuario: user.idUsuario
-  //     }
-  //   };
-  
-  //   try {
-  //     const response = await fetch(`${BASE_URL}/categoria`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': `Bearer ${token}`
-  //       },
-  //       body: JSON.stringify(categoriaData),
-  //     });
-  //     console.log(response)
-  //     let data = await response.json()
-  //     console.log(data)
-  //     if (data.status === 201) {
-  //       const novaCategoria = {
-  //         ...categoriaData,
-  //         idCategoria: Date.now().toString(),
-  //         criadoEm: new Date().toISOString()
-  //       };
-        
-  //       setCategories(prevCategories => [...prevCategories, novaCategoria]);
-        
-  //       return novaCategoria;
-  //     } else {
-  //       throw new Error(`Falha ao criar categoria: ${response.status}`);
-  //     }
-  //   } catch (error) {
-  //     console.error('Erro ao criar categoria:', error);
-  //     throw error;
-  //   }
-  // };
 
   const fetchTopicos = useCallback(async () => {
     const token = localStorage.getItem('authToken');
@@ -417,7 +419,32 @@ const loginUser = async (email, senha) => {
   }
 };
   
+const deletarCurtida = async (idTopico) => {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    throw new Error('Usuário não autenticado');
+  }
 
+  try {
+    const response = await fetch(`${BASE_URL}/curtida/${idTopico}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Falha ao deletar curtida');
+    }
+
+    // Refresh the topics to get updated like count
+    await fetchTopicos();
+    return true;
+  } catch (error) {
+    console.error('Erro ao deletar curtida:', error);
+    throw error;
+  }
+};
 
 
   
@@ -501,12 +528,94 @@ const searchAll = useCallback((searchTerm) => {
   return [...matchingTopics, ...matchingCategories, ...matchingUsers];
 }, [topicos, categories, user]);
 
+const deleteUser = async (idUsuario) => {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    throw new Error('Usuário não autenticado');
+  }
+
+  try {
+    const response = await fetch(`${BASE_URL}/usuario/${idUsuario}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Falha ao deletar usuário');
+    }
+
+    setAllUsers(prevUsers => prevUsers.filter(user => user.idUsuario !== idUsuario));
+    return true;
+  } catch (error) {
+    console.error('Erro ao deletar usuário:', error);
+    throw error;
+  }
+};
+
+const alterarPermissaoUsuario = async (idUsuario, novaPermissao) => {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    throw new Error('Usuário não autenticado');
+  }
+
+  try {
+    // Verifica se o ID é válido
+    if (!idUsuario) {
+      throw new Error('ID do usuário é obrigatório');
+    }
+
+    // Verifica se a permissão é válida
+    if (!['USER', 'ADMIN'].includes(novaPermissao)) {
+      throw new Error('Permissão inválida');
+    }
+
+    const url = `${BASE_URL}/usuario/alterar-permissao/${idUsuario}`;
+    
+    console.log('URL da requisição:', url);
+    console.log('Dados sendo enviados:', novaPermissao);
+
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(novaPermissao) // Enviando apenas a string da permissão
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      console.error('Resposta do servidor:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorData
+      });
+      throw new Error(`Falha ao alterar permissão do usuário: ${response.status} ${response.statusText}`);
+    }
+
+    // Atualiza a lista de usuários localmente
+    setAllUsers(prevUsers => prevUsers.map(user => 
+      user.idUsuario === idUsuario ? { ...user, role: novaPermissao } : user
+    ));
+
+    return true;
+  } catch (error) {
+    console.error('Erro detalhado:', {
+      message: error.message,
+      stack: error.stack
+    });
+    throw error;
+  }
+};
 
 
 
   return (
     <ForumContext.Provider value={{ 
       categories, 
+      alterarPermissaoUsuario,
       criarCurtida,
       setCategories, 
       cadastrarUsuario, 
@@ -515,6 +624,7 @@ const searchAll = useCallback((searchTerm) => {
       user, 
       criarCategoria,
       topicos,
+      deleteUser,
       fetchTopicos,
       criarTopico,
       logout,
@@ -523,8 +633,12 @@ const searchAll = useCallback((searchTerm) => {
       respostas,
       isLoading,
       error,
+      fetchAllUsers,
+      allUsers,
       fetchTopicoById,
-      criarResposta
+      criarResposta,
+      deletarCurtida,
+      deletarResposta
     }}>
       {children}
     </ForumContext.Provider>

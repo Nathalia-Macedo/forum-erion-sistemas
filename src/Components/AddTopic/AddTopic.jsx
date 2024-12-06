@@ -1,6 +1,187 @@
+// import React, { useState, useContext } from 'react';
+// import { X, Link, FileText, Image } from 'lucide-react';
+// import './AddTopic.css';
+// import { ForumContext } from '../../Context/Dados';
+
+// const NewTopicModal = ({ isOpen, onClose }) => {
+//   const { categories, criarTopico } = useContext(ForumContext);
+//   const [formData, setFormData] = useState({
+//     title: '',
+//     category: '',
+//     description: ''
+//   });
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [showLinkInput, setShowLinkInput] = useState(false);
+//   const [linkUrl, setLinkUrl] = useState('');
+//   const [files, setFiles] = useState([]);
+//   const [images, setImages] = useState([]);
+//   const [links, setLinks] = useState([]);
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     setIsLoading(true);
+//     try {
+//       const allFiles = [...files, ...images];
+//       const arquivo = allFiles.length > 0 ? allFiles[0] : null;
+//       await criarTopico(formData.title, formData.category, formData.description, arquivo, links);
+//       setIsLoading(false);
+//       onClose();
+//     } catch (error) {
+//       console.error('Erro ao criar tópico:', error);
+//       setIsLoading(false);
+//       // Handle error (e.g., show error message to user)
+//     }
+//   };
+
+//   const handleLinkToggle = () => {
+//     setShowLinkInput(!showLinkInput);
+//   };
+
+//   const handleLinkSubmit = (e) => {
+//     e.preventDefault();
+//     if (linkUrl) {
+//       setLinks(prev => [...prev, linkUrl]);
+//       setLinkUrl('');
+//       setShowLinkInput(false);
+//     }
+//   };
+
+//   const handleFileUpload = (e) => {
+//     const uploadedFiles = Array.from(e.target.files);
+//     setFiles(prev => [...prev, ...uploadedFiles]);
+//   };
+
+//   const handleImageUpload = (e) => {
+//     const uploadedImages = Array.from(e.target.files);
+//     setImages(prev => [...prev, ...uploadedImages]);
+//   };
+
+//   if (!isOpen) return null;
+
+//   return (
+//     <div className="modal-overlay">
+//       <div className="modal-content">
+//         <div className="modal-header">
+//           <h2>Adicionar novo tópico</h2>
+//           <button onClick={onClose} className="close-button">
+//             <X size={24} color="white" />
+//           </button>
+//         </div>
+
+//         <form onSubmit={handleSubmit}>
+//           <div className="form-group">
+//             <label htmlFor="title">Título:</label>
+//             <input
+//               type="text"
+//               id="title"
+//               placeholder="Título"
+//               value={formData.title}
+//               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+//               disabled={isLoading}
+//             />
+//           </div>
+
+//           <div className="form-group">
+//             <label htmlFor="category">Categoria:</label>
+//             <select
+//               id="category"
+//               value={formData.category}
+//               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+//               disabled={isLoading}
+//             >
+//               <option value="">Selecione uma categoria</option>
+//               {categories.map((category) => (
+//                 <option key={category.idCategoria} value={category.idCategoria}>
+//                   {category.titulo}
+//                 </option>
+//               ))}
+//             </select>
+//           </div>
+
+//           <div className="form-group">
+//             <label htmlFor="description">Descrição:</label>
+//             <textarea
+//               id="description"
+//               placeholder="Descrição aqui..."
+//               value={formData.description}
+//               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+//               disabled={isLoading}
+//             />
+//           </div>
+
+//           <div className="attachment-icons">
+//             <button type="button" onClick={handleLinkToggle} disabled={isLoading}>
+//               <Link size={20} />
+//             </button>
+//             <label htmlFor="file-upload" className="file-upload-label">
+//               <FileText size={20} />
+//               <input
+//                 type="file"
+//                 id="file-upload"
+//                 onChange={handleFileUpload}
+//                 disabled={isLoading}
+//                 style={{ display: 'none' }}
+//               />
+//             </label>
+//             <label htmlFor="image-upload" className="file-upload-label">
+//               <Image size={20} />
+//               <input
+//                 type="file"
+//                 id="image-upload"
+//                 onChange={handleImageUpload}
+//                 accept="image/*"
+//                 disabled={isLoading}
+//                 style={{ display: 'none' }}
+//               />
+//             </label>
+//           </div>
+
+//           {showLinkInput && (
+//             <div className="link-input-container">
+//               <input
+//                 type="url"
+//                 placeholder="Insira o URL do link"
+//                 value={linkUrl}
+//                 onChange={(e) => setLinkUrl(e.target.value)}
+//                 disabled={isLoading}
+//               />
+//               <button type="button" onClick={handleLinkSubmit} disabled={isLoading}>
+//                 Adicionar Link
+//               </button>
+//             </div>
+//           )}
+
+//           {(files.length > 0 || images.length > 0 || links.length > 0) && (
+//             <div className="file-list">
+//               <h4>Arquivos e links anexados:</h4>
+//               <ul>
+//                 {files.map((file, index) => (
+//                   <li key={`file-${index}`}>{file.name}</li>
+//                 ))}
+//                 {images.map((image, index) => (
+//                   <li key={`image-${index}`}>{image.name}</li>
+//                 ))}
+//                 {links.map((link, index) => (
+//                   <li key={`link-${index}`}>{link}</li>
+//                 ))}
+//               </ul>
+//               <p className="file-warning">Nota: Apenas o primeiro arquivo será enviado devido a limitações da API. Todos os links serão incluídos.</p>
+//             </div>
+//           )}
+
+//           <button type="submit" className="submit-button" disabled={isLoading}>
+//             {isLoading ? 'Carregando...' : 'Postar tópico'}
+//           </button>
+//         </form>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default NewTopicModal;
+
 import React, { useState, useContext } from 'react';
 import { X, Link, FileText, Image } from 'lucide-react';
-import './AddTopic.css';
 import { ForumContext } from '../../Context/Dados';
 
 const NewTopicModal = ({ isOpen, onClose }) => {
@@ -59,18 +240,18 @@ const NewTopicModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h2>Adicionar novo tópico</h2>
-          <button onClick={onClose} className="close-button">
-            <X size={24} color="white" />
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-[#0A0E45] rounded-lg p-6 w-11/12 max-w-lg text-white">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold">Adicionar novo tópico</h2>
+          <button onClick={onClose} className="text-white hover:opacity-80">
+            <X size={24} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="title">Título:</label>
+          <div className="mb-5">
+            <label htmlFor="title" className="block mb-2 text-sm font-medium">Título:</label>
             <input
               type="text"
               id="title"
@@ -78,16 +259,18 @@ const NewTopicModal = ({ isOpen, onClose }) => {
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               disabled={isLoading}
+              className="w-full p-3 rounded-lg text-sm text-[#0A0E45]"
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="category">Categoria:</label>
+          <div className="mb-5">
+            <label htmlFor="category" className="block mb-2 text-sm font-medium">Categoria:</label>
             <select
               id="category"
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
               disabled={isLoading}
+              className="w-full p-3 rounded-lg text-sm text-[#0A0E45]"
             >
               <option value="">Selecione uma categoria</option>
               {categories.map((category) => (
@@ -98,78 +281,89 @@ const NewTopicModal = ({ isOpen, onClose }) => {
             </select>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="description">Descrição:</label>
+          <div className="mb-5">
+            <label htmlFor="description" className="block mb-2 text-sm font-medium">Descrição:</label>
             <textarea
               id="description"
               placeholder="Descrição aqui..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               disabled={isLoading}
+              className="w-full p-3 rounded-lg text-sm text-[#0A0E45] h-36 resize-y"
             />
           </div>
 
-          <div className="attachment-icons">
-            <button type="button" onClick={handleLinkToggle} disabled={isLoading}>
+          <div className="flex gap-4 mb-6">
+            <button type="button" onClick={handleLinkToggle} disabled={isLoading} className="text-white hover:opacity-80">
               <Link size={20} />
             </button>
-            <label htmlFor="file-upload" className="file-upload-label">
+            <label htmlFor="file-upload" className="cursor-pointer text-white hover:opacity-80">
               <FileText size={20} />
               <input
                 type="file"
                 id="file-upload"
+                multiple
                 onChange={handleFileUpload}
                 disabled={isLoading}
-                style={{ display: 'none' }}
+                className="hidden"
               />
             </label>
-            <label htmlFor="image-upload" className="file-upload-label">
+            <label htmlFor="image-upload" className="cursor-pointer text-white hover:opacity-80">
               <Image size={20} />
               <input
                 type="file"
                 id="image-upload"
                 onChange={handleImageUpload}
-                accept="image/*"
+                multiple
                 disabled={isLoading}
-                style={{ display: 'none' }}
+                className="hidden"
               />
             </label>
           </div>
 
           {showLinkInput && (
-            <div className="link-input-container">
+            <div className="flex gap-2 mb-5">
               <input
                 type="url"
                 placeholder="Insira o URL do link"
                 value={linkUrl}
                 onChange={(e) => setLinkUrl(e.target.value)}
                 disabled={isLoading}
+                className="flex-grow p-3 rounded-lg text-sm text-[#0A0E45]"
               />
-              <button type="button" onClick={handleLinkSubmit} disabled={isLoading}>
+              <button 
+                type="button" 
+                onClick={handleLinkSubmit} 
+                disabled={isLoading}
+                className="bg-[#00C853] text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-[#00a847] transition-colors"
+              >
                 Adicionar Link
               </button>
             </div>
           )}
 
           {(files.length > 0 || images.length > 0 || links.length > 0) && (
-            <div className="file-list">
-              <h4>Arquivos e links anexados:</h4>
-              <ul>
+            <div className="mt-5 mb-6">
+              <h4 className="text-base font-medium mb-2">Arquivos e links anexados:</h4>
+              <ul className="list-none pl-0">
                 {files.map((file, index) => (
-                  <li key={`file-${index}`}>{file.name}</li>
+                  <li key={`file-${index}`} className="text-sm mb-1">{file.name}</li>
                 ))}
                 {images.map((image, index) => (
-                  <li key={`image-${index}`}>{image.name}</li>
+                  <li key={`image-${index}`} className="text-sm mb-1">{image.name}</li>
                 ))}
                 {links.map((link, index) => (
-                  <li key={`link-${index}`}>{link}</li>
+                  <li key={`link-${index}`} className="text-sm mb-1">{link}</li>
                 ))}
               </ul>
-              <p className="file-warning">Nota: Apenas o primeiro arquivo será enviado devido a limitações da API. Todos os links serão incluídos.</p>
             </div>
           )}
 
-          <button type="submit" className="submit-button" disabled={isLoading}>
+          <button 
+            type="submit" 
+            className="w-full bg-[#00C853] text-white rounded-lg py-3 text-base font-medium hover:bg-[#00a847] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            disabled={isLoading}
+          >
             {isLoading ? 'Carregando...' : 'Postar tópico'}
           </button>
         </form>

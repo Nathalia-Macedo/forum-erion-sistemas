@@ -1,7 +1,6 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { User, Search, LogOut, Plus, ArrowLeft } from 'lucide-react';
 import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
-import './Header.css';
 import NewCategoryModal from '../AddCategory/AddCategory';
 import NewTopicModal from '../AddTopic/AddTopic';
 import { ForumContext } from '../../Context/Dados';
@@ -45,6 +44,10 @@ const Header = () => {
     navigate('/');
   };
 
+  const handleUser = () => {
+    navigate('/user')
+  }
+
   const handleCloseTopicModal = () => {
     setIsTopicModalOpen(false);
   };
@@ -59,10 +62,10 @@ const Header = () => {
 
   const getHeaderText = () => {
     if (location.pathname === '/home') {
-      return 'Categorias em <span class="highlight">alta</span>:';
+      return 'Categorias em <span class="text-[#00C853]">alta</span>:';
     } else if (location.pathname.startsWith('/category/')) {
       const category = categories.find(cat => cat.idCategoria === categoryId);
-      return category ? `Tópicos da categoria <span class="highlight">${category.titulo}</span>:` : 'Tópicos da categoria:';
+      return category ? `Tópicos da categoria <span class="text-[#00C853]">${category.titulo}</span>:` : 'Tópicos da categoria:';
     }
     return '';
   };
@@ -84,43 +87,43 @@ const Header = () => {
   };
 
   return (
-    <div className="header-container">
-      <header className="forum-header">
-        <h1>ERION SISTEMAS</h1>
-        <div className='icons'>
+    <div className="bg-[#0A0E45] p-5">
+      <header className="flex justify-between items-center mb-5">
+        <h1 className="text-white text-2xl font-semibold">ERION SISTEMAS</h1>
+        <div className="flex space-x-4">
           {isTopicsPage && (
             <ArrowLeft 
-              style={{color: "white", cursor: "pointer"}} 
+              className="text-white cursor-pointer"
               onClick={handleBack}
             />
           )}
-          <User style={{color:"white"}}/>
-          <Search style={{color:"white"}}/>
-          <LogOut onClick={handleLogout} style={{color:"white"}}/>
+          <User onClick={handleUser} className="text-white cursor-pointer"/>
+          <Search className="text-white cursor-pointer"/>
+          <LogOut onClick={handleLogout} className="text-white cursor-pointer"/>
         </div>
       </header>
 
-      <div className="search-container" ref={searchRef}>
+      <div className="relative mb-5" ref={searchRef}>
         <input 
           type="text" 
           placeholder="O que você está procurando?" 
-          className="search-input" 
+          className="w-full p-2 rounded-md text-sm focus:outline-none"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={handleSearchFocus}
         />
         {isSearchFocused && searchResults.length > 0 && (
-          <div className="search-results-menu">
+          <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-b-md max-h-[300px] overflow-y-auto z-10">
             {searchResults.map((result, index) => (
               <div 
                 key={index} 
-                className="search-result-item"
+                className="p-2 cursor-pointer hover:bg-gray-100 border-b border-gray-200 last:border-b-0"
                 onClick={() => handleSearchItemClick(result)}
               >
-                <p className="result-type">{result.type}</p>
-                <p className="result-title">{result.titulo || result.nome}</p>
+                <p className="text-xs text-gray-600">{result.type}</p>
+                <p className="font-bold">{result.titulo || result.nome}</p>
                 {result.type === 'Tópico' && (
-                  <p className="result-preview">{result.descricao.substring(0, 100)}...</p>
+                  <p className="text-sm text-gray-700">{result.descricao.substring(0, 100)}...</p>
                 )}
               </div>
             ))}
@@ -128,14 +131,22 @@ const Header = () => {
         )}
       </div>
 
-      <div className="categories-header">
-        <h2 dangerouslySetInnerHTML={{ __html: getHeaderText() }}></h2>
-        <div className="button-group">
-          <button className="create-button" onClick={() => setIsTopicModalOpen(true)}>
-            <Plus className="plus-icon"/>Criar novo tópico
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5">
+        <h2 className="text-white text-lg font-medium mb-2 sm:mb-0" dangerouslySetInnerHTML={{ __html: getHeaderText() }}></h2>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <button 
+            className="flex items-center justify-center gap-1 bg-[#0A0E45] text-white border border-white rounded-md px-3 py-2 text-sm font-medium hover:bg-white hover:text-[#0A0E45] transition-colors"
+            onClick={() => setIsTopicModalOpen(true)}
+          >
+            <Plus className="w-4 h-4" />
+            Criar novo tópico
           </button>
-          <button className="create-button" onClick={() => setIsCategoryModalOpen(true)}>
-            <Plus className="plus-icon"/>Criar nova Categoria
+          <button 
+            className="flex items-center justify-center gap-1 bg-[#0A0E45] text-white border border-white rounded-md px-3 py-2 text-sm font-medium hover:bg-white hover:text-[#0A0E45] transition-colors"
+            onClick={() => setIsCategoryModalOpen(true)}
+          >
+            <Plus className="w-4 h-4" />
+            Criar nova Categoria
           </button>
         </div>
       </div>
@@ -153,5 +164,4 @@ const Header = () => {
 };
 
 export default Header;
-
 

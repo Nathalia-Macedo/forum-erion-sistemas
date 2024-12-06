@@ -1,7 +1,5 @@
-
 import React, { useContext, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import './ForumHome.css';
 import NewCategoryModal from '../Components/AddCategory/AddCategory';
 import NewTopicModal from '../Components/AddTopic/AddTopic';
 import CategoryCard from '../Components/CategoryCard/CategoryCard';
@@ -31,14 +29,13 @@ const CategoryTopics = () => {
   }, [categoryId, topicos, categories]);
 
   return (
-    <div className="forum-container">
-      <Header/>
-      <div className="topics-list">
+    <div className="min-h-screen bg-[#0A0E45] p-5 font-['Poppins',sans-serif]">
+      <Header />
+      <div className="mt-8 space-y-4">
         {categoryTopics.map((topic) => (
           <TopicCard key={topic.idTopico} topic={topic} />
         ))}
       </div>
-
 
       <NewTopicModal 
         isOpen={isTopicModalOpen} 
@@ -55,3 +52,4 @@ const CategoryTopics = () => {
 };
 
 export default CategoryTopics;
+

@@ -59,12 +59,14 @@ import UserInfoScreen from '../Pages/UserPage/UserPage';
 import AccountActivationPending from '../Components/PendenteAtivacao/PendenteAtivacao';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import UserProfile from '../Pages/UserProfile/UserProfile';
 
 function App() {
   return (
     <Router>
       <ForumProvider>
         <Routes>
+        <Route path="/user/:idUsuario" element={<UserProfile />} />
           <Route path="/" element={<Login />} />
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/home" element={<ForumHome />} />

@@ -1,6 +1,6 @@
 // import React, { useState, useContext, useEffect } from 'react';
 // import { useNavigate } from 'react-router-dom';
-// import { ThumbsUp, MessageCircle } from 'lucide-react';
+// import { ThumbsUp, MessageCircle, User, Calendar } from 'lucide-react';
 // import { ForumContext } from '../../Context/Dados';
 
 // const TopicCard = ({ topic }) => {
@@ -63,9 +63,12 @@
 //       onClick={handleCardClick}
 //     >
 //       <h3 className="text-xl font-semibold mb-2 text-gray-800">{topic.titulo}</h3>
-//       <p className="text-sm text-gray-600 mb-3">
-//         Por: {topic.criadoPor.nome} • {formatDate(topic.criadoEm)}
-//       </p>
+//       <div className="flex items-center text-sm text-gray-600 mb-3">
+//         <User size={16} className="mr-1" />
+//         <span className="mr-2">{topic.criadoPor.nome}</span>
+//         <Calendar size={16} className="mr-1" />
+//         <span>{formatDate(topic.criadoEm)}</span>
+//       </div>
 //       <p className="text-base text-gray-700 mb-4 line-clamp-3">{topic.descricao}</p>
       
 //       <div className="mt-auto flex justify-between items-center">
@@ -99,7 +102,7 @@
 // export default TopicCard;
 
 import React, { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ThumbsUp, MessageCircle, User, Calendar } from 'lucide-react';
 import { ForumContext } from '../../Context/Dados';
 
@@ -165,7 +168,13 @@ const TopicCard = ({ topic }) => {
       <h3 className="text-xl font-semibold mb-2 text-gray-800">{topic.titulo}</h3>
       <div className="flex items-center text-sm text-gray-600 mb-3">
         <User size={16} className="mr-1" />
-        <span className="mr-2">{topic.criadoPor.nome}</span>
+        <Link 
+          to={`/user/${topic.criadoPor.idUsuario}`}
+          className="mr-2 hover:underline"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {topic.criadoPor.nome}
+        </Link>
         <Calendar size={16} className="mr-1" />
         <span>{formatDate(topic.criadoEm)}</span>
       </div>

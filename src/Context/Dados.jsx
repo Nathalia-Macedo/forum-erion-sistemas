@@ -668,6 +668,47 @@ const alterarPermissaoUsuario = async (idUsuario, novaPermissao) => {
 
 
 
+
+const activateUserAccount = async (email) => {
+  try {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('Token não encontrado');
+    }
+
+    const response = await fetch(`${BASE_URL}/ativar/${email}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      // Get the error message from the response if possible
+      const errorData = await response.json().catch(() => null);
+      console.error('Resposta do servidor:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorData
+      });
+      
+      if (response.status === 500) {
+        throw new Error('Erro interno do servidor. Por favor, tente novamente mais tarde.');
+      }
+      
+      throw new Error(errorData?.message || 'Falha ao ativar conta');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Erro ao ativar conta:', error);
+    throw error;
+  }
+};
+
+
   return (
     <ForumContext.Provider value={{ 
       categories, 
@@ -686,6 +727,7 @@ const alterarPermissaoUsuario = async (idUsuario, novaPermissao) => {
       criarTopico,
       logout,
       fetchCategories,
+      activateUserAccount,
       currentTopic,
       respostas,
       isLoading,

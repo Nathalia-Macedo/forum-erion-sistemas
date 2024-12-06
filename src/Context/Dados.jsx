@@ -116,6 +116,62 @@ export const ForumProvider = ({ children }) => {
     }
   }, []);
 
+  const fetchUserProfile = useCallback(async (userId) => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('Usuário não autenticado');
+    }
+
+    try {
+      // Fetch user data
+      const userResponse = await fetch(`${BASE_URL}/usuario/${userId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!userResponse.ok) {
+        throw new Error('Falha ao buscar dados do usuário');
+      }
+
+      const userData = await userResponse.json();
+
+      // Fetch all topics
+      const topicsResponse = await fetch(`${BASE_URL}/topico`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!topicsResponse.ok) {
+        throw new Error('Falha ao buscar tópicos');
+      }
+
+      const allTopics = await topicsResponse.json();
+
+      // Filter topics created by the user
+      const userTopics = allTopics.filter(topic => topic.criadoPor.idUsuario === userId);
+
+      // Fetch all categories
+      const categoriesResponse = await fetch(`${BASE_URL}/categoria`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!categoriesResponse.ok) {
+        throw new Error('Falha ao buscar categorias');
+      }
+
+      const allCategories = await categoriesResponse.json();
+
+      // Filter categories created by the user
+      const userCategories = allCategories.filter(category => category.criadoPor.idUsuario === userId);
+
+      return {
+        user: userData,
+        topics: userTopics,
+        categories: userCategories
+      };
+    } catch (error) {
+      console.error('Erro ao buscar perfil do usuário:', error);
+      throw error;
+    }
+  }, []);
 
   const deletarResposta = async (idResposta) => {
     const token = localStorage.getItem('authToken');
@@ -619,6 +675,7 @@ const alterarPermissaoUsuario = async (idUsuario, novaPermissao) => {
       criarCurtida,
       setCategories, 
       cadastrarUsuario, 
+      fetchUserProfile,
       loginUser, 
       searchAll,
       user, 

@@ -807,8 +807,72 @@ export const ForumProvider = ({ children }) => {
     }
   };
   
+  const deleteTopic = async (topicId) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('Token de autenticação não encontrado');
+      }
   
+      const url = `https://ander4793.c44.integrator.host/api/v1/topico/${topicId}`;
+      
+      // Primeira tentativa: usando JSON
+      let response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ topico: { idTopico: topicId } })
+      });
   
+      // Se a primeira tentativa falhar, tenta com FormData
+      if (!response.ok) {
+        console.log('Primeira tentativa falhou, tentando com FormData');
+        const formData = new FormData();
+        formData.append('topico', JSON.stringify({ idTopico: topicId }));
+  
+        response = await fetch(url, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+      }
+  
+      // Se ainda não for bem-sucedido, tenta sem body
+      if (!response.ok) {
+        console.log('Segunda tentativa falhou, tentando sem body');
+        response = await fetch(url, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      }
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Resposta da API:', errorText);
+        throw new Error(`Erro ao deletar tópico: ${response.status} ${response.statusText}`);
+      }
+  
+      console.log('Tópico deletado com sucesso');
+      return true;
+    } catch (error) {
+      console.error('Erro ao deletar tópico:', error);
+      throw error;
+    }
+  };
+
+
+
+
+
+
+
+
   return (
     <ForumContext.Provider value={{ 
       categories, 
@@ -840,6 +904,7 @@ export const ForumProvider = ({ children }) => {
       criarResposta,
       deletarCurtida,
       deletarResposta,
+      deleteTopic,
       checkAuthToken,
       setUser,
       setError,

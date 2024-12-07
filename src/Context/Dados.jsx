@@ -867,11 +867,82 @@ export const ForumProvider = ({ children }) => {
   };
 
 
-
-
-
-
-
+  const editarTopico = async (idTopico, titulo, idCategoria, descricao, anexos = [], links = []) => {
+    const token = localStorage.getItem("authToken");
+    try {
+      const topicoData = {
+        titulo,
+        idCategoria,
+        descricao,
+        links: links || []
+      };
+  
+      const formData = new FormData();
+      formData.append('topico', JSON.stringify(topicoData));
+  
+      // Handle file attachments
+      if (anexos && anexos.length > 0) {
+        anexos.forEach((anexo) => {
+          if (anexo instanceof File) {
+            formData.append('file', anexo);
+          }
+        });
+      }
+  
+      // Important: Do NOT set Content-Type header when sending FormData
+      // Let the browser set it automatically with the correct boundary
+      const response = await fetch(`${BASE_URL}/topico/${idTopico}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+          // Remove any Content-Type header
+        },
+        body: formData
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text(); // Get raw response text for better error debugging
+        console.error('Response error:', {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText
+        });
+        throw new Error(errorText || 'Erro ao editar tópico');
+      }
+  
+      const data = await response.json();
+      await fetchTopicos();
+      return data;
+    } catch (error) {
+      console.error('Erro ao editar tópico:', error);
+      throw error;
+    }
+  };
+  
+  const solicitarAlteracaoSenha = async (email) => {
+    const token = localStorage.getItem("authToken");
+    try {
+      const response = await fetch(`${BASE_URL}/usuario/emitir-alterar-senha/${email}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erro ao solicitar alteração de senha');
+      }
+  
+      return true;
+    } catch (error) {
+      console.error('Erro ao solicitar alteração de senha:', error);
+      throw error;
+    }
+  };  
+  
+  
+  
 
   return (
     <ForumContext.Provider value={{ 
@@ -881,9 +952,11 @@ export const ForumProvider = ({ children }) => {
       setCategories, 
       updatePassword,
       cadastrarUsuario, 
+      solicitarAlteracaoSenha,
       fetchUserProfile,
       loginUser, 
       searchAll,
+      editarTopico,
       user, 
       criarCategoria,
       topicos,

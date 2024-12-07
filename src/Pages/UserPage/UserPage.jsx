@@ -2,12 +2,13 @@
 // import { Link } from 'react-router-dom';
 // import { ForumContext } from '../../Context/Dados';
 // import Modal from '../../Components/Modal/Modal';
-// import { Trash2, Edit, Paperclip, UserCog, Settings, MoreVertical } from 'lucide-react';
+// import { Trash2, Edit, Paperclip, UserCog, Settings, MoreVertical, Search } from 'lucide-react';
 // import { toast } from 'react-toastify';
 // import SimplifiedHeader from '../../Components/SimplifiedHeader/SimplifiedHeader';
 // import Loading from '../../Components/Loading/Carregando';
 // import ProfilePhotoModal from '../../Components/UpdatePhotoProfile/AtualizarFoto';
 // import PasswordChangeModal from '../../Components/PasswordChange/PasswordChange';
+// import NewTopicModal from '../../Components/AddTopic/AddTopic';
 
 // const UserInfoScreen = () => {
 //   const { user, categories, topicos, fetchTopicos, allUsers, fetchAllUsers, deleteUser, alterarPermissaoUsuario, activateUserAccount, updateProfilePhoto, updatePassword, deleteTopic } = useContext(ForumContext);
@@ -27,6 +28,9 @@
 //   const [topicToDelete, setTopicToDelete] = useState(null);
 //   const [isDeleteTopicModalOpen, setIsDeleteTopicModalOpen] = useState(false);
 //   const [openMenuId, setOpenMenuId] = useState(null);
+//   const [searchQuery, setSearchQuery] = useState('');
+//   const [isNewTopicModalOpen, setIsNewTopicModalOpen] = useState(false);
+//   const [topicToEdit, setTopicToEdit] = useState(null);
 
 //   useEffect(() => {
 //     const loadData = async () => {
@@ -56,6 +60,37 @@
 //     if (!user || !topicos) return [];
 //     return topicos.filter(topic => topic.criadoPor.idUsuario === user.idUsuario);
 //   }, [user, topicos]);
+
+//   const filteredUsers = useMemo(() => {
+//     if (!searchQuery.trim() || !allUsers) return allUsers;
+//     const query = searchQuery.toLowerCase();
+//     return allUsers.filter(user => 
+//       user.nome.toLowerCase().includes(query) ||
+//       user.email.toLowerCase().includes(query) ||
+//       user.role.toLowerCase().includes(query)
+//     );
+//   }, [allUsers, searchQuery]);
+
+//   const filteredTopics = useMemo(() => {
+//     if (!searchQuery.trim() || !topicos) return topicos;
+//     const query = searchQuery.toLowerCase();
+//     return topicos.filter(topic => 
+//       topic.titulo.toLowerCase().includes(query) ||
+//       topic.descricao.toLowerCase().includes(query) ||
+//       topic.categoria.titulo.toLowerCase().includes(query) ||
+//       topic.criadoPor.nome.toLowerCase().includes(query)
+//     );
+//   }, [topicos, searchQuery]);
+
+//   const filteredCategories = useMemo(() => {
+//     if (!searchQuery.trim() || !categories) return categories;
+//     const query = searchQuery.toLowerCase();
+//     return categories.filter(category => 
+//       category.titulo.toLowerCase().includes(query) ||
+//       category.subTitulo.toLowerCase().includes(query) ||
+//       category.criadoPor.nome.toLowerCase().includes(query)
+//     );
+//   }, [categories, searchQuery]);
 
 //   const handleDeleteUser = (userItem) => {
 //     setUserToDelete(userItem);
@@ -169,11 +204,20 @@
 //     }
 //   };
 
-
 //   const handleMoreOptionsClick = (e, topicId) => {
 //     e.preventDefault();
 //     e.stopPropagation();
 //     setOpenMenuId(openMenuId === topicId ? null : topicId);
+//   };
+
+//   const handleEditTopic = (topic) => {
+//     setTopicToEdit(topic);
+//     setIsNewTopicModalOpen(true);
+//   };
+
+//   const handleCloseNewTopicModal = () => {
+//     setIsNewTopicModalOpen(false);
+//     setTopicToEdit(null);
 //   };
 
 //   if (isLoading) {
@@ -194,14 +238,14 @@
 //     <div className="min-h-screen bg-gray-100">
 //       <SimplifiedHeader />
 //       <header className="bg-white shadow relative">
-//         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex items-center">
+//         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center">
 //           <img
 //             src={user.foto || defaultImage}
 //             alt={user.nome}
-//             className="w-24 h-24 rounded-full object-cover mr-6"
+//             className="w-24 h-24 rounded-full object-cover mb-4 sm:mb-0 sm:mr-6"
 //           />
-//           <div>
-//             <h1 className="text-3xl font-bold text-gray-900">{user.nome}</h1>
+//           <div className="text-center sm:text-left">
+//             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{user.nome}</h1>
 //             <p className="mt-1 text-sm text-gray-500">
 //               Membro desde {new Date(user.criadoEm).toLocaleDateString('pt-BR')}
 //             </p>
@@ -238,11 +282,11 @@
 //         </div>
 //       </header>
 
-//       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-//         <div className="px-4 py-6 sm:px-0">
+//       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+//         <div className="mb-6">
 //           <div className="border-4 border-dashed border-gray-200 rounded-lg p-4">
 //             <h2 className="text-xl font-semibold mb-4">Informações do Usuário</h2>
-//             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 //               <div>
 //                 <p className="text-sm font-medium text-gray-500">Email</p>
 //                 <p className="mt-1">{user.email}</p>
@@ -267,25 +311,37 @@
 //           <div className="mt-8">
 //             <div className="border-4 border-dashed border-gray-200 rounded-lg p-4">
 //               <div>
-//                 <div className="mb-4">
-//                   <button
-//                     className={`mr-4 px-4 py-2 ${activeTab === 'users' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-//                     onClick={() => setActiveTab('users')}
-//                   >
-//                     Usuários
-//                   </button>
-//                   <button
-//                     className={`mr-4 px-4 py-2 ${activeTab === 'topics' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-//                     onClick={() => setActiveTab('topics')}
-//                   >
-//                     Tópicos
-//                   </button>
-//                   <button
-//                     className={`px-4 py-2 ${activeTab === 'categories' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-//                     onClick={() => setActiveTab('categories')}
-//                   >
-//                     Categorias
-//                   </button>
+//                 <div className="mb-4 flex flex-col sm:flex-row justify-between items-center">
+//                   <div className="mb-4 sm:mb-0 flex flex-wrap justify-center sm:justify-start">
+//                     <button
+//                       className={`mr-2 mb-2 sm:mb-0 px-4 py-2 ${activeTab === 'users' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+//                       onClick={() => setActiveTab('users')}
+//                     >
+//                       Usuários
+//                     </button>
+//                     <button
+//                       className={`mr-2 mb-2 sm:mb-0 px-4 py-2 ${activeTab === 'topics' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+//                       onClick={() => setActiveTab('topics')}
+//                     >
+//                       Tópicos
+//                     </button>
+//                     <button
+//                       className={`px-4 py-2 ${activeTab === 'categories' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+//                       onClick={() => setActiveTab('categories')}
+//                     >
+//                       Categorias
+//                     </button>
+//                   </div>
+//                   <div className="relative w-full sm:w-auto">
+//                     <input
+//                       type="text"
+//                       placeholder="Pesquisar..."
+//                       value={searchQuery}
+//                       onChange={(e) => setSearchQuery(e.target.value)}
+//                       className="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+//                     />
+//                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+//                   </div>
 //                 </div>
 //                 <div className="h-96 overflow-y-auto border border-gray-200 rounded-lg p-4">
 //                   {activeTab === 'users' && (
@@ -303,7 +359,7 @@
 //                             </tr>
 //                           </thead>
 //                           <tbody className="bg-white divide-y divide-gray-200">
-//                             {allUsers.map((userItem) => (
+//                             {filteredUsers.map((userItem) => (
 //                               <tr key={userItem.idUsuario} className="border-b">
 //                                 <td className="px-4 py-2">{userItem.nome}</td>
 //                                 <td className="px-4 py-2">{userItem.email}</td>
@@ -357,7 +413,7 @@
 //                     <div>
 //                       <h2 className="text-xl font-semibold mb-4">Lista de Tópicos</h2>
 //                       <div className="space-y-4">
-//                         {topicos.map((topic) => (
+//                         {filteredTopics.map((topic) => (
 //                           <div key={topic.idTopico} className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow duration-200 relative">
 //                             <Link to={`/topic/${topic.idTopico}`} className="block">
 //                               <h3 className="text-lg font-semibold pr-8">{topic.titulo}</h3>
@@ -393,8 +449,7 @@
 //                                     onClick={(e) => {
 //                                       e.preventDefault();
 //                                       e.stopPropagation();
-//                                       // Add edit functionality here
-//                                       console.log('Edit topic:', topic.idTopico);
+//                                       handleEditTopic(topic);
 //                                     }}
 //                                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
 //                                   >
@@ -424,7 +479,7 @@
 //                     <div>
 //                       <h2 className="text-xl font-semibold mb-4">Lista de Categorias</h2>
 //                       <div className="space-y-4">
-//                         {categories.map((category) => (
+//                         {filteredCategories.map((category) => (
 //                           <div key={category.idCategoria} className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow duration-200">
 //                             <h3 className="text-lg font-semibold">{category.titulo}</h3>
 //                             <p className="text-sm text-gray-600">{category.subTitulo}</p>
@@ -497,6 +552,11 @@
 //         title="Confirmar Exclusão"
 //         message={`Tem certeza que deseja excluir o tópico "${topicToDelete?.titulo}"?`}
 //       />
+//       <NewTopicModal
+//         isOpen={isNewTopicModalOpen}
+//         onClose={handleCloseNewTopicModal}
+//         topicToEdit={topicToEdit}
+//       />
 //     </div>
 //   );
 // };
@@ -507,12 +567,13 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ForumContext } from '../../Context/Dados';
 import Modal from '../../Components/Modal/Modal';
-import { Trash2, Edit, Paperclip, UserCog, Settings, MoreVertical, Search } from 'lucide-react';
+import { Trash2, Edit, Paperclip, UserCog, Settings, MoreVertical, Search, ChevronDown } from 'lucide-react';
 import { toast } from 'react-toastify';
 import SimplifiedHeader from '../../Components/SimplifiedHeader/SimplifiedHeader';
 import Loading from '../../Components/Loading/Carregando';
 import ProfilePhotoModal from '../../Components/UpdatePhotoProfile/AtualizarFoto';
 import PasswordChangeModal from '../../Components/PasswordChange/PasswordChange';
+import NewTopicModal from '../../Components/AddTopic/AddTopic';
 
 const UserInfoScreen = () => {
   const { user, categories, topicos, fetchTopicos, allUsers, fetchAllUsers, deleteUser, alterarPermissaoUsuario, activateUserAccount, updateProfilePhoto, updatePassword, deleteTopic } = useContext(ForumContext);
@@ -533,6 +594,9 @@ const UserInfoScreen = () => {
   const [isDeleteTopicModalOpen, setIsDeleteTopicModalOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isNewTopicModalOpen, setIsNewTopicModalOpen] = useState(false);
+  const [topicToEdit, setTopicToEdit] = useState(null);
+  const [expandedUsers, setExpandedUsers] = useState({});
 
   useEffect(() => {
     const loadData = async () => {
@@ -712,6 +776,23 @@ const UserInfoScreen = () => {
     setOpenMenuId(openMenuId === topicId ? null : topicId);
   };
 
+  const handleEditTopic = (topic) => {
+    setTopicToEdit(topic);
+    setIsNewTopicModalOpen(true);
+  };
+
+  const handleCloseNewTopicModal = () => {
+    setIsNewTopicModalOpen(false);
+    setTopicToEdit(null);
+  };
+
+  const toggleUserExpansion = (userId) => {
+    setExpandedUsers(prev => ({
+      ...prev,
+      [userId]: !prev[userId]
+    }));
+  };
+
   if (isLoading) {
     return <Loading />;
   }
@@ -730,14 +811,14 @@ const UserInfoScreen = () => {
     <div className="min-h-screen bg-gray-100">
       <SimplifiedHeader />
       <header className="bg-white shadow relative">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex items-center">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center">
           <img
             src={user.foto || defaultImage}
             alt={user.nome}
-            className="w-24 h-24 rounded-full object-cover mr-6"
+            className="w-24 h-24 rounded-full object-cover mb-4 sm:mb-0 sm:mr-6"
           />
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{user.nome}</h1>
+          <div className="text-center sm:text-left">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{user.nome}</h1>
             <p className="mt-1 text-sm text-gray-500">
               Membro desde {new Date(user.criadoEm).toLocaleDateString('pt-BR')}
             </p>
@@ -774,11 +855,11 @@ const UserInfoScreen = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
+      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div className="mb-6">
           <div className="border-4 border-dashed border-gray-200 rounded-lg p-4">
             <h2 className="text-xl font-semibold mb-4">Informações do Usuário</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm font-medium text-gray-500">Email</p>
                 <p className="mt-1">{user.email}</p>
@@ -803,16 +884,16 @@ const UserInfoScreen = () => {
           <div className="mt-8">
             <div className="border-4 border-dashed border-gray-200 rounded-lg p-4">
               <div>
-                <div className="mb-4 flex justify-between items-center">
-                  <div>
+                <div className="mb-4 flex flex-col sm:flex-row justify-between items-center">
+                  <div className="mb-4 sm:mb-0 flex flex-wrap justify-center sm:justify-start">
                     <button
-                      className={`mr-4 px-4 py-2 ${activeTab === 'users' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                      className={`mr-2 mb-2 sm:mb-0 px-4 py-2 ${activeTab === 'users' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
                       onClick={() => setActiveTab('users')}
                     >
                       Usuários
                     </button>
                     <button
-                      className={`mr-4 px-4 py-2 ${activeTab === 'topics' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                      className={`mr-2 mb-2 sm:mb-0 px-4 py-2 ${activeTab === 'topics' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
                       onClick={() => setActiveTab('topics')}
                     >
                       Tópicos
@@ -824,22 +905,22 @@ const UserInfoScreen = () => {
                       Categorias
                     </button>
                   </div>
-                  <div className="relative">
+                  <div className="relative w-full sm:w-auto">
                     <input
                       type="text"
                       placeholder="Pesquisar..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                   </div>
                 </div>
-                <div className="h-96 overflow-y-auto border border-gray-200 rounded-lg p-4">
+                <div className="mt-4 border border-gray-200 rounded-lg overflow-hidden">
                   {activeTab === 'users' && (
                     <div>
-                      <h2 className="text-xl font-semibold mb-4">Lista de Usuários</h2>
-                      <div className="overflow-x-auto">
+                      <h2 className="text-xl font-semibold mb-4 px-4 pt-4">Lista de Usuários</h2>
+                      <div className="hidden sm:block">
                         <table className="min-w-full divide-y divide-gray-200">
                           <thead className="bg-gray-50">
                             <tr>
@@ -852,44 +933,40 @@ const UserInfoScreen = () => {
                           </thead>
                           <tbody className="bg-white divide-y divide-gray-200">
                             {filteredUsers.map((userItem) => (
-                              <tr key={userItem.idUsuario} className="border-b">
-                                <td className="px-4 py-2">{userItem.nome}</td>
-                                <td className="px-4 py-2">{userItem.email}</td>
-                                <td className="px-4 py-2">{userItem.role}</td>
-                                <td className="px-4 py-2">{new Date(userItem.criadoEm).toLocaleDateString('pt-BR')}</td>
-                                <td className="px-4 py-2">
-                                  <div className="flex items-center gap-1">
+                              <tr key={userItem.idUsuario}>
+                                <td className="px-6 py-4 whitespace-nowrap">{userItem.nome}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">{userItem.email}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">{userItem.role}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">{new Date(userItem.criadoEm).toLocaleDateString('pt-BR')}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="flex items-center space-x-2">
                                     <button
                                       onClick={() => handleDeleteUser(userItem)}
-                                      className="inline-flex items-center px-2 py-1 text-xs rounded hover:bg-red-600 bg-red-500 text-white"
+                                      className="text-red-600 hover:text-red-900"
                                     >
-                                      <Trash2 className="w-3 h-3 mr-1" />
-                                      Deletar
+                                      <Trash2 className="w-5 h-5" />
                                     </button>
                                     <button
                                       onClick={() => {
                                         setIsPasswordModalOpen(true);
                                         setUserToChangePermission(userItem);
                                       }}
-                                      className="inline-flex items-center px-2 py-1 text-xs rounded hover:bg-blue-600 bg-blue-500 text-white"
+                                      className="text-blue-600 hover:text-blue-900"
                                     >
-                                      <Edit className="w-3 h-3 mr-1" />
-                                      Senha
+                                      <Edit className="w-5 h-5" />
                                     </button>
                                     <button
                                       onClick={() => handleChangePermission(userItem)}
-                                      className="inline-flex items-center px-2 py-1 text-xs rounded hover:bg-green-600 bg-green-500 text-white"
+                                      className="text-green-600 hover:text-green-900"
                                     >
-                                      <UserCog className="w-3 h-3 mr-1" />
-                                      Permissão
+                                      <UserCog className="w-5 h-5" />
                                     </button>
                                     {!userItem.ativo && (
                                       <button
                                         onClick={() => handleActivateUser(userItem)}
-                                        className="inline-flex items-center px-2 py-1 text-xs rounded hover:bg-yellow-600 bg-yellow-500 text-white"
+                                        className="text-yellow-600 hover:text-yellow-900"
                                       >
-                                        <UserCog className="w-3 h-3 mr-1" />
-                                        Ativar
+                                        <UserCog className="w-5 h-5" />
                                       </button>
                                     )}
                                   </div>
@@ -898,6 +975,78 @@ const UserInfoScreen = () => {
                             ))}
                           </tbody>
                         </table>
+                      </div>
+                      <div className="sm:hidden">
+                        {filteredUsers.map((userItem) => (
+                          <div key={userItem.idUsuario} className="bg-white shadow overflow-hidden sm:rounded-lg mb-4">
+                            <div className="px-4 py-5 sm:px-6">
+                              <h3 className="text-lg leading-6 font-medium text-gray-900">{userItem.nome}</h3>
+                              <p className="mt-1 max-w-2xl text-sm text-gray-500">{userItem.email}</p>
+                            </div>
+                            <div className="border-t border-gray-200">
+                              <dl>
+                                <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                  <dt className="text-sm font-medium text-gray-500">Função</dt>
+                                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{userItem.role}</dd>
+                                </div>
+                                <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                  <dt className="text-sm font-medium text-gray-500">Data de Criação</dt>
+                                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                    {new Date(userItem.criadoEm).toLocaleDateString('pt-BR')}
+                                  </dd>
+                                </div>
+                              </dl>
+                            </div>
+                            <div className="border-t border-gray-200 px-4 py-4">
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm font-medium text-gray-500">Ações</span>
+                                <button 
+                                  onClick={() => toggleUserExpansion(userItem.idUsuario)}
+                                  className="text-blue-600 hover:text-blue-900"
+                                >
+                                  <ChevronDown className={`w-5 h-5 transform transition-transform ${expandedUsers[userItem.idUsuario] ? 'rotate-180' : ''}`} />
+                                </button>
+                              </div>
+                              {expandedUsers[userItem.idUsuario] && (
+                                <div className="mt-2 space-y-2">
+                                  <button
+                                    onClick={() => handleDeleteUser(userItem)}
+                                    className="w-full text-left px-2 py-1 text-sm text-red-600 hover:bg-red-100 rounded"
+                                  >
+                                    <Trash2 className="w-4 h-4 inline mr-2" />
+                                    Deletar Usuário
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setIsPasswordModalOpen(true);
+                                      setUserToChangePermission(userItem);
+                                    }}
+                                    className="w-full text-left px-2 py-1 text-sm text-blue-600 hover:bg-blue-100 rounded"
+                                  >
+                                    <Edit className="w-4 h-4 inline mr-2" />
+                                    Alterar Senha
+                                  </button>
+                                  <button
+                                    onClick={() => handleChangePermission(userItem)}
+                                    className="w-full text-left px-2 py-1 text-sm text-green-600 hover:bg-green-100 rounded"
+                                  >
+                                    <UserCog className="w-4 h-4 inline mr-2" />
+                                    Alterar Permissão
+                                  </button>
+                                  {!userItem.ativo && (
+                                    <button
+                                      onClick={() => handleActivateUser(userItem)}
+                                      className="w-full text-left px-2 py-1 text-sm text-yellow-600 hover:bg-yellow-100 rounded"
+                                    >
+                                      <UserCog className="w-4 h-4 inline mr-2" />
+                                      Ativar Usuário
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )}
@@ -941,8 +1090,7 @@ const UserInfoScreen = () => {
                                     onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
-                                      // Add edit functionality here
-                                      console.log('Edit topic:', topic.idTopico);
+                                      handleEditTopic(topic);
                                     }}
                                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                                   >
@@ -1044,6 +1192,11 @@ const UserInfoScreen = () => {
         onConfirm={confirmDeleteTopic}
         title="Confirmar Exclusão"
         message={`Tem certeza que deseja excluir o tópico "${topicToDelete?.titulo}"?`}
+      />
+      <NewTopicModal
+        isOpen={isNewTopicModalOpen}
+        onClose={handleCloseNewTopicModal}
+        topicToEdit={topicToEdit}
       />
     </div>
   );

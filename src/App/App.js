@@ -60,6 +60,7 @@ import AccountActivationPending from '../Components/PendenteAtivacao/PendenteAti
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import UserProfile from '../Pages/UserProfile/UserProfile';
+import PasswordChangeRequest from '../Pages/AlterarSenha/AlterarSenha';
 
 function App() {
   return (
@@ -75,6 +76,8 @@ function App() {
           <Route path="/topic/:idTopico" element={<TopicDetail />} />
           <Route path="/user" element={<UserInfoScreen />} />
           <Route path="/account-activation-pending" element={<AccountActivationPending />} />
+          <Route path="/solicitar-alteracao-senha" element={<PasswordChangeRequest />} />
+
         </Routes>
         <ToastContainer 
           position="top-right"

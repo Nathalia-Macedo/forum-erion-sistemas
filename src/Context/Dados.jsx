@@ -628,31 +628,40 @@ export const ForumProvider = ({ children }) => {
     return [...matchingTopics, ...matchingCategories, ...matchingUsers];
   }, [topicos, categories, allUsers]);
 
-  const deleteUser = async (idUsuario) => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      throw new Error('Usuário não autenticado');
-    }
-
+ 
+  const deleteUser = async (userId) => {
     try {
-      const response = await fetch(`${BASE_URL}/usuario/${idUsuario}`, {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
+  
+      const response = await fetch(`${BASE_URL}/usuario/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
 
-      if (!response.ok) {
-        throw new Error('Falha ao deletar usuário');
+      console.log(response);
+      
+      if (response.ok && response.status==200) {
+        // User deleted successfully
+        return true;
+      } else {
+        throw new Error('Failed to delete user');
       }
-
-      setAllUsers(prevUsers => prevUsers.filter(user => user.idUsuario !== idUsuario));
-      return true;
     } catch (error) {
-      console.error('Erro ao deletar usuário:', error);
+      console.error('Error deleting user:', error);
       throw error;
     }
-  };
+  };;
+
+
+
+
+
+
 
   const alterarPermissaoUsuario = async (idUsuario, novaPermissao) => {
     const token = localStorage.getItem('authToken');
@@ -806,8 +815,7 @@ export const ForumProvider = ({ children }) => {
     }
   
     try {
-      console.log('Sending request to:', `${BASE_URL}/usuario/alterar-senha/${idUsuario}`);
-      const response = await fetch(`${BASE_URL}/usuario/alterar-senha/${idUsuario}`, {
+      const response = await fetch(`${BASE_URL}/usuario/alterar-senha-admin/${idUsuario}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -822,6 +830,7 @@ export const ForumProvider = ({ children }) => {
       });
   
       console.log('Response received:', response);
+      
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Error response:', errorData);

@@ -14,7 +14,32 @@ export const ForumProvider = ({ children }) => {
 
   const BASE_URL = 'https://ander4793.c44.integrator.host/api/v1';
 
-
+  const deletarCategoria = async (idCategoria) => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('Usuário não autenticado');
+    }
+  
+    try {
+      const response = await fetch(`${BASE_URL}/categoria/${idCategoria}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error('Falha ao deletar categoria');
+      }
+  
+      // Atualizar o estado local após a deleção bem-sucedida
+      setCategories(prevCategories => prevCategories.filter(cat => cat.idCategoria !== idCategoria));
+      return true;
+    } catch (error) {
+      console.error('Erro ao deletar categoria:', error);
+      throw error;
+    }
+  };
 
 
 
@@ -964,6 +989,7 @@ export const ForumProvider = ({ children }) => {
       user, 
       criarCategoria,
       topicos,
+      deletarCategoria,
       deleteUser,
       fetchTopicos,
       criarTopico,

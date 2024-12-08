@@ -158,6 +158,7 @@ export const ForumProvider = ({ children }) => {
       }
   
       const categoriesData = await categoriesResponse.json();
+      console.log(categoriesData)
       const topicsData = await topicsResponse.json();
   
       const categoriesWithPostCount = categoriesData.map(category => {
@@ -356,6 +357,7 @@ export const ForumProvider = ({ children }) => {
     }
   };
 
+
   const criarCategoria = async (titulo, subTitulo, descricao) => {
     const token = localStorage.getItem('authToken');
     if (!token || !user) {
@@ -367,7 +369,8 @@ export const ForumProvider = ({ children }) => {
       subTitulo,
       descricao,
       criadoPor: {
-        idUsuario: user.idUsuario
+        idUsuario: user.idUsuario,
+        nome: user.nome // Include the user's name
       }
     };
   
@@ -381,17 +384,21 @@ export const ForumProvider = ({ children }) => {
         body: JSON.stringify(categoriaData),
       });
   
-      const data = await response.json();
-      console.log('Resposta da API:', data);
+      console.log('Resposta da API:', response);
   
-      const novaCategoria = {
-        ...data,
-        criadoEm: new Date().toISOString()
-      };
-      
-      setCategories(prevCategories => [...prevCategories, novaCategoria]);
-      
-      return novaCategoria;
+      if (response.status === 201 && response.ok) {
+        const novaCategoria = {
+          ...categoriaData,
+          idCategoria: Date.now(), // Temporary ID until we can fetch the real one
+          criadoEm: new Date().toISOString()
+        };
+        
+        setCategories(prevCategories => [...prevCategories, novaCategoria]);
+        
+        return novaCategoria;
+      } else {
+        throw new Error('Erro ao criar categoria');
+      }
     } catch (error) {
       console.error('Erro ao criar categoria:', error);
       throw error;
@@ -635,28 +642,32 @@ export const ForumProvider = ({ children }) => {
       if (!token) {
         throw new Error('Authentication token not found');
       }
-  
+      console.log(`${BASE_URL}/usuario/${userId}`);
       const response = await fetch(`${BASE_URL}/usuario/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
-
+  
       console.log(response);
       
-      if (response.ok && response.status==200) {
+      if (response.ok && response.status === 200) {
         // User deleted successfully
         return true;
-      } else {
-        throw new Error('Failed to delete user');
-      }
-    } catch (error) {
-      console.error('Error deleting user:', error);
+      } else if (response.status === 500) {
+                  throw new Error('Não é possível excluir o usuário porque ele possui tópicos existentes.');
+        } else {
+          throw new Error('Erro interno do servidor ao tentar excluir o usuário.');
+        }
+      } 
+     catch (error) {
+      console.error('Erro ao excluir usuário:', error);
       throw error;
     }
-  };;
-
+  };
+  
+  
 
 
 

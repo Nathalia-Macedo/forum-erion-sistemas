@@ -1,6 +1,6 @@
 
 
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useMemo } from 'react';
 import './ForumHome.css';
 import NewCategoryModal from '../Components/AddCategory/AddCategory';
 import { Plus } from 'lucide-react';
@@ -16,7 +16,7 @@ const ForumHome = () => {
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
   const handleTopicCreated = () => {
     fetchCategories();
@@ -28,12 +28,16 @@ const ForumHome = () => {
     setIsCategoryModalOpen(false);
   };
 
+  const sortedCategories = useMemo(() => {
+    return [...categories].sort((a, b) => new Date(a.criadoEm) - new Date(b.criadoEm)).reverse();
+  }, [categories]);
+
   return (
     <div className="forum-container">
-      <Header/>
+      <Header />
 
       <div className="categories-list">
-        {categories.map((category) => (
+        {sortedCategories.map((category) => (
           <CategoryCard key={category.idCategoria} category={category} />
         ))}
       </div>
@@ -54,3 +58,6 @@ const ForumHome = () => {
 };
 
 export default ForumHome;
+
+
+

@@ -2,7 +2,7 @@
 // import { Link } from 'react-router-dom';
 // import { ForumContext } from '../../Context/Dados';
 // import Modal from '../../Components/Modal/Modal';
-// import { Trash2, Edit, Paperclip, UserCog, Settings, MoreVertical, Search, ChevronDown, AlertCircle } from 'lucide-react';
+// import { Trash2, Edit, Paperclip, UserCog, Settings, MoreVertical, Search, ChevronDown, AlertCircle, UserX } from 'lucide-react';
 // import { toast } from 'react-toastify';
 // import SimplifiedHeader from '../../Components/SimplifiedHeader/SimplifiedHeader';
 // import Loading from '../../Components/Loading/Carregando';
@@ -12,12 +12,13 @@
 // import EditCategoryModal from '../../Components/EditCategoryModal/EditCategoryModal'
 // import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../Components/Tooltip/Tooltip";
 
-// const sortByDate = (a, b) => new Date(b.criadoEm) - new Date(a.criadoEm);
 
 // const formatDate = (dateString) => {
 //   const [datePart] = dateString.split(' ');
 //   return datePart;
 // };
+
+// const sortByDate = (a, b) => new Date(b.criadoEm) - new Date(a.criadoEm);
 
 // const NoResultsMessage = ({ message }) => (
 //   <div className="flex items-center justify-center p-4 text-gray-500">
@@ -414,27 +415,27 @@
 //                               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
 //                             </tr>
 //                           </thead>
-//                           <tbody className="bg-white divide-y divide-gray-200  cursor-pointer">
+//                           <tbody className="bg-white divide-y divide-gray-200">
 //                             {filteredUsers.length > 0 ? (
 //                               filteredUsers.map((userItem) => (
 //                                 <tr key={userItem.idUsuario}>
-//                                   <td className="px-6 py-4 whitespace-nowrapr" onClick={() => window.location.href = `/user/${userItem.idUsuario}`}>
-//                                     <span className="cursor-pointer text-blue-600 hover:text-blue-800">
+//                                   <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => window.location.href = `/user/${userItem.idUsuario}`}>
+//                                     <span className="text-blue-600 hover:text-blue-800">
 //                                       {userItem.nome}
 //                                     </span>
 //                                   </td>
-//                                   <td className="px-6 py-4 whitespace-nowrap" onClick={() => window.location.href = `/user/${userItem.idUsuario}`}>
-//                                     <span className="cursor-pointer text-blue-600 hover:text-blue-800">
+//                                   <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => window.location.href = `/user/${userItem.idUsuario}`}>
+//                                     <span className="text-blue-600 hover:text-blue-800">
 //                                       {userItem.email}
 //                                     </span>
 //                                   </td>
-//                                   <td className="px-6 py-4 whitespace-nowrap" onClick={() => window.location.href = `/user/${userItem.idUsuario}`}>
-//                                     <span className="cursor-pointer text-blue-600 hover:text-blue-800">
+//                                   <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => window.location.href = `/user/${userItem.idUsuario}`}>
+//                                     <span className="text-blue-600 hover:text-blue-800">
 //                                       {userItem.role}
 //                                     </span>
 //                                   </td>
-//                                   <td className="px-6 py-4 whitespace-nowrap" onClick={() => window.location.href = `/user/${userItem.idUsuario}`}>
-//                                     <span className="cursor-pointer text-blue-600 hover:text-blue-800">
+//                                   <td className="px-6 py-4 whitespace-nowrap cursor-pointer" onClick={() => window.location.href = `/user/${userItem.idUsuario}`}>
+//                                     <span className="text-blue-600 hover:text-blue-800">
 //                                       {formatDate(userItem.criadoEm)}
 //                                     </span>
 //                                   </td>
@@ -448,6 +449,19 @@
 //                                               className="text-red-600 hover:text-red-900"
 //                                             >
 //                                               <Trash2 className="w-5 h-5" />
+//                                             </button>
+//                                           </TooltipTrigger>
+//                                           <TooltipContent>
+//                                             <p>Deletar usuário</p>
+//                                           </TooltipContent>
+//                                         </Tooltip>
+//                                         <Tooltip>
+//                                           <TooltipTrigger asChild>
+//                                             <button
+//                                               onClick={() => handleDeleteUser(userItem)}
+//                                               className="text-red-600 hover:text-red-900"
+//                                             >
+//                                               <UserX className="w-5 h-5" />
 //                                             </button>
 //                                           </TooltipTrigger>
 //                                           <TooltipContent>
@@ -554,6 +568,20 @@
 //                                           className="w-full text-left px-2 py-1 text-sm text-red-600 hover:bg-red-100 rounded"
 //                                         >
 //                                           <Trash2 className="w-4 h-4 inline mr-2" />
+//                                           Deletar Usuário
+//                                         </button>
+//                                       </TooltipTrigger>
+//                                       <TooltipContent>
+//                                         <p>Deletar usuário</p>
+//                                       </TooltipContent>
+//                                     </Tooltip>
+//                                     <Tooltip>
+//                                       <TooltipTrigger asChild>
+//                                         <button
+//                                           onClick={() => handleDeleteUser(userItem)}
+//                                           className="w-full text-left px-2 py-1 text-sm text-red-600 hover:bg-red-100 rounded"
+//                                         >
+//                                           <UserX className="w-4 h-4 inline mr-2" />
 //                                           Deletar Usuário
 //                                         </button>
 //                                       </TooltipTrigger>
@@ -710,7 +738,8 @@
 //                                   <MoreVertical size={18} />
 //                                 </button>
 //                                 {openMenuId === category.idCategoria && (
-//                                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+//                                   <div
+//                                     className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
 //                                     <button
 //                                       onClick={(e) => {
 //                                         e.preventDefault();
@@ -849,6 +878,7 @@ const formatDate = (dateString) => {
 
 const sortByDate = (a, b) => new Date(b.criadoEm) - new Date(a.criadoEm);
 
+
 const NoResultsMessage = ({ message }) => (
   <div className="flex items-center justify-center p-4 text-gray-500">
     <AlertCircle className="mr-2" size={20} />
@@ -960,7 +990,8 @@ const UserInfoScreen = () => {
         await fetchAllUsers();
       } catch (error) {
         console.error('Erro ao deletar usuário:', error);
-        toast.error('Falha ao deletar usuário. Por favor, tente novamente.');
+        toast.error(error.message || 'Falha ao deletar usuário. Por favor, tente novamente.');
+        setIsDeleteModalOpen(false);
       }
     }
   };
@@ -1269,21 +1300,11 @@ const UserInfoScreen = () => {
                                     </span>
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="flex items-center space-x-2">
+                                    <div 
+                                      className="flex items-center space-x-2 cursor-pointer"
+                                      onClick={(e) => handleMoreOptionsClick(e, userItem.idUsuario, 'user')}
+                                    >
                                       <TooltipProvider>
-                                        <Tooltip>
-                                          <TooltipTrigger asChild>
-                                            <button
-                                              onClick={() => handleDeleteUser(userItem)}
-                                              className="text-red-600 hover:text-red-900"
-                                            >
-                                              <Trash2 className="w-5 h-5" />
-                                            </button>
-                                          </TooltipTrigger>
-                                          <TooltipContent>
-                                            <p>Deletar usuário</p>
-                                          </TooltipContent>
-                                        </Tooltip>
                                         <Tooltip>
                                           <TooltipTrigger asChild>
                                             <button
@@ -1563,8 +1584,7 @@ const UserInfoScreen = () => {
                                 <button
                                   onClick={(e) => handleMoreOptionsClick(e, category.idCategoria, 'category')}
                                   className="text-gray-500 hover:text-gray-700"
-                                >
-                                  <MoreVertical size={18} />
+                                ><MoreVertical size={18} />
                                 </button>
                                 {openMenuId === category.idCategoria && (
                                   <div

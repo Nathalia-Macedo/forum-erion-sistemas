@@ -243,6 +243,7 @@ export const ForumProvider = ({ children }) => {
           'Authorization': `Bearer ${token}`
         }
       });
+
       if (!response.ok) {
         throw new Error('Falha ao buscar dados do usuário');
       }
@@ -271,6 +272,7 @@ export const ForumProvider = ({ children }) => {
         body: JSON.stringify({ email, senha }),
       });
 
+      console.log(response)
       if (!response.ok) {
         if (response.status === 403) {
           throw new Error('Acesso negado. Sua conta pode não estar ativada ou você não tem permissão para acessar.');
@@ -279,6 +281,7 @@ export const ForumProvider = ({ children }) => {
       }
 
       const data = await response.json();
+      console.log(data)
       
       if (!data || !data.token) {
         throw new Error('Token não recebido do servidor');
@@ -592,12 +595,13 @@ export const ForumProvider = ({ children }) => {
       categoria.descricao.toLowerCase().includes(lowercaseTerm)
     ).map(categoria => ({ ...categoria, type: 'Categoria' }));
 
-    const matchingUsers = user ? [user].filter(u => 
-      u.nome.toLowerCase().includes(lowercaseTerm)
-    ).map(u => ({ ...u, type: 'Usuário' })) : [];
+    const matchingUsers = allUsers.filter(u => 
+      u.nome.toLowerCase().includes(lowercaseTerm) ||
+      u.email.toLowerCase().includes(lowercaseTerm)
+    ).map(u => ({ ...u, type: 'Usuário' }));
 
     return [...matchingTopics, ...matchingCategories, ...matchingUsers];
-  }, [topicos, categories, user]);
+  }, [topicos, categories, allUsers]);
 
   const deleteUser = async (idUsuario) => {
     const token = localStorage.getItem('authToken');

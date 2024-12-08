@@ -2,16 +2,34 @@
 // import { Link } from 'react-router-dom';
 // import { ForumContext } from '../../Context/Dados';
 // import Modal from '../../Components/Modal/Modal';
-// import { Trash2, Edit, Paperclip, UserCog, Settings, MoreVertical, Search } from 'lucide-react';
+// import { Trash2, Edit, Paperclip, UserCog, Settings, MoreVertical, Search, ChevronDown, AlertCircle } from 'lucide-react';
 // import { toast } from 'react-toastify';
 // import SimplifiedHeader from '../../Components/SimplifiedHeader/SimplifiedHeader';
 // import Loading from '../../Components/Loading/Carregando';
 // import ProfilePhotoModal from '../../Components/UpdatePhotoProfile/AtualizarFoto';
 // import PasswordChangeModal from '../../Components/PasswordChange/PasswordChange';
 // import NewTopicModal from '../../Components/AddTopic/AddTopic';
+// import EditCategoryModal from '../../Components/EditCategoryModal/EditCategoryModal';
+
+
+// const formatDate = (dateString) => {
+//   const date = new Date(dateString);
+//   return date.toLocaleDateString('pt-BR', {
+//     year: 'numeric',
+//     month: '2-digit',
+//     day: '2-digit'
+//   });
+// };
+
+// const NoResultsMessage = ({ message }) => (
+//   <div className="flex items-center justify-center p-4 text-gray-500">
+//     <AlertCircle className="mr-2" size={20} />
+//     <p>{message}</p>
+//   </div>
+// );
 
 // const UserInfoScreen = () => {
-//   const { user, categories, topicos, fetchTopicos, allUsers, fetchAllUsers, deleteUser, alterarPermissaoUsuario, activateUserAccount, updateProfilePhoto, updatePassword, deleteTopic } = useContext(ForumContext);
+//   const { user, categories, topicos, fetchTopicos, allUsers, fetchAllUsers, deleteUser, alterarPermissaoUsuario, activateUserAccount, updateProfilePhoto, updatePassword, deleteTopic, deleteCategory, fetchCategories } = useContext(ForumContext);
 //   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 //   const [isPermissionModalOpen, setIsPermissionModalOpen] = useState(false);
 //   const [userToDelete, setUserToDelete] = useState(null);
@@ -31,6 +49,11 @@
 //   const [searchQuery, setSearchQuery] = useState('');
 //   const [isNewTopicModalOpen, setIsNewTopicModalOpen] = useState(false);
 //   const [topicToEdit, setTopicToEdit] = useState(null);
+//   const [expandedUsers, setExpandedUsers] = useState({});
+//   const [categoryToDelete, setCategoryToDelete] = useState(null);
+//   const [isDeleteCategoryModalOpen, setIsDeleteCategoryModalOpen] = useState(false);
+//   const [categoryToEdit, setCategoryToEdit] = useState(null);
+//   const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState(false);
 
 //   useEffect(() => {
 //     const loadData = async () => {
@@ -204,10 +227,10 @@
 //     }
 //   };
 
-//   const handleMoreOptionsClick = (e, topicId) => {
+//   const handleMoreOptionsClick = (e, id, type) => { // Added type parameter
 //     e.preventDefault();
 //     e.stopPropagation();
-//     setOpenMenuId(openMenuId === topicId ? null : topicId);
+//     setOpenMenuId(openMenuId === id ? null : id);
 //   };
 
 //   const handleEditTopic = (topic) => {
@@ -218,6 +241,38 @@
 //   const handleCloseNewTopicModal = () => {
 //     setIsNewTopicModalOpen(false);
 //     setTopicToEdit(null);
+//   };
+
+//   const toggleUserExpansion = (userId) => {
+//     setExpandedUsers(prev => ({
+//       ...prev,
+//       [userId]: !prev[userId]
+//     }));
+//   };
+
+//   const handleDeleteCategory = (category) => {
+//     setCategoryToDelete(category);
+//     setIsDeleteCategoryModalOpen(true);
+//   };
+
+//   const confirmDeleteCategory = async () => {
+//     if (categoryToDelete) {
+//       try {
+//         await deleteCategory(categoryToDelete.idCategoria);
+//         setIsDeleteCategoryModalOpen(false);
+//         setCategoryToDelete(null);
+//         toast.success('Categoria deletada com sucesso!');
+//         await fetchCategories();
+//       } catch (error) {
+//         console.error('Erro ao deletar categoria:', error);
+//         toast.error('Falha ao deletar categoria. Por favor, tente novamente.');
+//       }
+//     }
+//   };
+
+//   const handleEditCategory = (category) => {
+//     setCategoryToEdit(category);
+//     setIsEditCategoryModalOpen(true);
 //   };
 
 //   if (isLoading) {
@@ -247,7 +302,7 @@
 //           <div className="text-center sm:text-left">
 //             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{user.nome}</h1>
 //             <p className="mt-1 text-sm text-gray-500">
-//               Membro desde {new Date(user.criadoEm).toLocaleDateString('pt-BR')}
+//               Membro desde {formatDate(user.criadoEm)}
 //             </p>
 //           </div>
 //           <div className="absolute top-4 right-4">
@@ -343,11 +398,11 @@
 //                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
 //                   </div>
 //                 </div>
-//                 <div className="h-96 overflow-y-auto border border-gray-200 rounded-lg p-4">
+//                 <div className="mt-4 border border-gray-200 rounded-lg overflow-hidden">
 //                   {activeTab === 'users' && (
 //                     <div>
-//                       <h2 className="text-xl font-semibold mb-4">Lista de Usuários</h2>
-//                       <div className="overflow-x-auto">
+//                       <h2 className="text-xl font-semibold mb-4 px-4 pt-4">Lista de Usuários</h2>
+//                       <div className="hidden sm:block">
 //                         <table className="min-w-full divide-y divide-gray-200">
 //                           <thead className="bg-gray-50">
 //                             <tr>
@@ -359,114 +414,124 @@
 //                             </tr>
 //                           </thead>
 //                           <tbody className="bg-white divide-y divide-gray-200">
-//                             {filteredUsers.map((userItem) => (
-//                               <tr key={userItem.idUsuario} className="border-b">
-//                                 <td className="px-4 py-2">{userItem.nome}</td>
-//                                 <td className="px-4 py-2">{userItem.email}</td>
-//                                 <td className="px-4 py-2">{userItem.role}</td>
-//                                 <td className="px-4 py-2">{new Date(userItem.criadoEm).toLocaleDateString('pt-BR')}</td>
-//                                 <td className="px-4 py-2">
-//                                   <div className="flex items-center gap-1">
-//                                     <button
-//                                       onClick={() => handleDeleteUser(userItem)}
-//                                       className="inline-flex items-center px-2 py-1 text-xs rounded hover:bg-red-600 bg-red-500 text-white"
-//                                     >
-//                                       <Trash2 className="w-3 h-3 mr-1" />
-//                                       Deletar
-//                                     </button>
-//                                     <button
-//                                       onClick={() => {
-//                                         setIsPasswordModalOpen(true);
-//                                         setUserToChangePermission(userItem);
-//                                       }}
-//                                       className="inline-flex items-center px-2 py-1 text-xs rounded hover:bg-blue-600 bg-blue-500 text-white"
-//                                     >
-//                                       <Edit className="w-3 h-3 mr-1" />
-//                                       Senha
-//                                     </button>
-//                                     <button
-//                                       onClick={() => handleChangePermission(userItem)}
-//                                       className="inline-flex items-center px-2 py-1 text-xs rounded hover:bg-green-600 bg-green-500 text-white"
-//                                     >
-//                                       <UserCog className="w-3 h-3 mr-1" />
-//                                       Permissão
-//                                     </button>
-//                                     {!userItem.ativo && (
+//                             {filteredUsers.length > 0 ? (
+//                               filteredUsers.map((userItem) => (
+//                                 <tr key={userItem.idUsuario}>
+//                                   <td className="px-6 py-4 whitespace-nowrap">{userItem.nome}</td>
+//                                   <td className="px-6 py-4 whitespace-nowrap">{userItem.email}</td>
+//                                   <td className="px-6 py-4 whitespace-nowrap">{userItem.role}</td>
+//                                   <td className="px-6 py-4 whitespace-nowrap">{formatDate(userItem.criadoEm)}</td>
+//                                   <td className="px-6 py-4 whitespace-nowrap">
+//                                     <div className="flex items-center space-x-2">
 //                                       <button
-//                                         onClick={() => handleActivateUser(userItem)}
-//                                         className="inline-flex items-center px-2 py-1 text-xs rounded hover:bg-yellow-600 bg-yellow-500 text-white"
+//                                         onClick={() => handleDeleteUser(userItem)}
+//                                         className="text-red-600 hover:text-red-900"
 //                                       >
-//                                         <UserCog className="w-3 h-3 mr-1" />
-//                                         Ativar
+//                                         <Trash2 className="w-5 h-5" />
 //                                       </button>
-//                                     )}
-//                                   </div>
+//                                       <button
+//                                         onClick={() => {
+//                                           setIsPasswordModalOpen(true);
+//                                           setUserToChangePermission(userItem);
+//                                         }}
+//                                         className="text-blue-600 hover:text-blue-900"
+//                                       >
+//                                         <Edit className="w-5 h-5" />
+//                                       </button>
+//                                       <button
+//                                         onClick={() => handleChangePermission(userItem)}
+//                                         className="text-green-600 hover:text-green-900"
+//                                       >
+//                                         <UserCog className="w-5 h-5" />
+//                                       </button>
+//                                       {!userItem.ativo && (
+//                                         <button
+//                                           onClick={() => handleActivateUser(userItem)}
+//                                           className="text-yellow-600 hover:text-yellow-900"
+//                                         >
+//                                           <UserCog className="w-5 h-5" />
+//                                         </button>
+//                                       )}
+//                                     </div>
+//                                   </td>
+//                                 </tr>
+//                               ))
+//                             ) : (
+//                               <tr>
+//                                 <td colSpan="5">
+//                                   <NoResultsMessage message="Nenhum usuário encontrado." />
 //                                 </td>
 //                               </tr>
-//                             ))}
+//                             )}
 //                           </tbody>
 //                         </table>
 //                       </div>
-//                     </div>
-//                   )}
-//                   {activeTab === 'topics' && (
-//                     <div>
-//                       <h2 className="text-xl font-semibold mb-4">Lista de Tópicos</h2>
-//                       <div className="space-y-4">
-//                         {filteredTopics.map((topic) => (
-//                           <div key={topic.idTopico} className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow duration-200 relative">
-//                             <Link to={`/topic/${topic.idTopico}`} className="block">
-//                               <h3 className="text-lg font-semibold pr-8">{topic.titulo}</h3>
-//                               <p className="text-sm text-gray-600">{topic.descricao}</p>
-//                               <p className="text-xs text-gray-500 mt-2">
-//                                 Criado por: {topic.criadoPor.nome} em {new Date(topic.criadoEm).toLocaleDateString('pt-BR')}
-//                               </p>
-//                               <p className="text-xs text-gray-500">
-//                                 Categoria: {topic.categoria.titulo}
-//                               </p>
-//                               <p className="text-xs text-gray-500">
-//                                 Respostas: {topic.respostas.length}
-//                               </p>
-//                               {topic.anexos && topic.anexos.length > 0 && (
-//                                 <div className="mt-2">
-//                                   <p className="text-xs font-semibold flex items-center">
-//                                     <Paperclip className="w-3 h-3 mr-1" />
-//                                     Anexos: {topic.anexos.length}
-//                                   </p>
+//                       <div className="sm:hidden">
+//                         {filteredUsers.map((userItem) => (
+//                           <div key={userItem.idUsuario} className="bg-white shadow overflow-hidden sm:rounded-lg mb-4">
+//                             <div className="px-4 py-5 sm:px-6">
+//                               <h3 className="text-lg leading-6 font-medium text-gray-900">{userItem.nome}</h3>
+//                               <p className="mt-1 max-w-2xl text-sm text-gray-500">{userItem.email}</p>
+//                             </div>
+//                             <div className="border-t border-gray-200">
+//                               <dl>
+//                                 <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+//                                   <dt className="text-sm font-medium text-gray-500">Função</dt>
+//                                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{userItem.role}</dd>
 //                                 </div>
-//                               )}
-//                             </Link>
-//                             <div className="absolute top-4 right-4">
-//                               <button
-//                                 onClick={(e) => handleMoreOptionsClick(e, topic.idTopico)}
-//                                 className="text-gray-500 hover:text-gray-700"
-//                               >
-//                                 <MoreVertical size={18} />
-//                               </button>
-//                               {openMenuId === topic.idTopico && (
-//                                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+//                                 <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+//                                   <dt className="text-sm font-medium text-gray-500">Data de Criação</dt>
+//                                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+//                                     {formatDate(userItem.criadoEm)}
+//                                   </dd>
+//                                 </div>
+//                               </dl>
+//                             </div>
+//                             <div className="border-t border-gray-200 px-4 py-4">
+//                               <div className="flex justify-between items-center">
+//                                 <span className="text-sm font-medium text-gray-500">Ações</span>
+//                                 <button 
+//                                   onClick={() => toggleUserExpansion(userItem.idUsuario)}
+//                                   className="text-blue-600 hover:text-blue-900"
+//                                 >
+//                                   <ChevronDown className={`w-5 h-5 transform transition-transform ${expandedUsers[userItem.idUsuario] ? 'rotate-180' : ''}`} />
+//                                 </button>
+//                               </div>
+//                               {expandedUsers[userItem.idUsuario] && (
+//                                 <div className="mt-2 space-y-2">
 //                                   <button
-//                                     onClick={(e) => {
-//                                       e.preventDefault();
-//                                       e.stopPropagation();
-//                                       handleEditTopic(topic);
-//                                     }}
-//                                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+//                                     onClick={() => handleDeleteUser(userItem)}
+//                                     className="w-full text-left px-2 py-1 text-sm text-red-600 hover:bg-red-100 rounded"
 //                                   >
-//                                     <Edit size={14} className="inline mr-2" />
-//                                     Editar
+//                                     <Trash2 className="w-4 h-4 inline mr-2" />
+//                                     Deletar Usuário
 //                                   </button>
 //                                   <button
-//                                     onClick={(e) => {
-//                                       e.preventDefault();
-//                                       e.stopPropagation();
-//                                       handleDeleteTopic(topic);
+//                                     onClick={() => {
+//                                       setIsPasswordModalOpen(true);
+//                                       setUserToChangePermission(userItem);
 //                                     }}
-//                                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+//                                     className="w-full text-left px-2 py-1 text-sm text-blue-600 hover:bg-blue-100 rounded"
 //                                   >
-//                                     <Trash2 size={14} className="inline mr-2" />
-//                                     Excluir
+//                                     <Edit className="w-4 h-4 inline mr-2" />
+//                                     Alterar Senha
 //                                   </button>
+//                                   <button
+//                                     onClick={() => handleChangePermission(userItem)}
+//                                     className="w-full text-left px-2 py-1 text-sm text-green-600 hover:bg-green-100 rounded"
+//                                   >
+//                                     <UserCog className="w-4 h-4 inline mr-2" />
+//                                     Alterar Permissão
+//                                   </button>
+//                                   {!userItem.ativo && (
+//                                     <button
+//                                       onClick={() => handleActivateUser(userItem)}
+//                                       className="w-full text-left px-2 py-1 text-sm text-yellow-600 hover:bg-yellow-100 rounded"
+//                                     >
+//                                       <UserCog className="w-4 h-4 inline mr-2" />
+//                                       Ativar Usuário
+//                                     </button>
+//                                   )}
 //                                 </div>
 //                               )}
 //                             </div>
@@ -475,22 +540,130 @@
 //                       </div>
 //                     </div>
 //                   )}
+//                   {activeTab === 'topics' && (
+//                     <div>
+//                       <h2 className="text-xl font-semibold mb-4">Lista de Tópicos</h2>
+//                       <div className="space-y-4">
+//                         {filteredTopics.length > 0 ? (
+//                           filteredTopics.map((topic) => (
+//                             <div key={topic.idTopico} className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow duration-200 relative">
+//                               <Link to={`/topic/${topic.idTopico}`} className="block">
+//                                 <h3 className="text-lg font-semibold pr-8">{topic.titulo}</h3>
+//                                 <p className="text-sm text-gray-600">{topic.descricao}</p>
+//                                 <p className="text-xs text-gray-500 mt-2">
+//                                   Criado por: {topic.criadoPor.nome} em {formatDate(topic.criadoEm)}
+//                                 </p>
+//                                 <p className="text-xs text-gray-500">
+//                                   Categoria: {topic.categoria.titulo}
+//                                 </p>
+//                                 <p className="text-xs text-gray-500">
+//                                   Respostas: {topic.respostas ? topic.respostas.length : 0}
+//                                 </p>
+//                                 {topic.anexos && topic.anexos.length > 0 && (
+//                                   <div className="mt-2">
+//                                     <p className="text-xs font-semibold flex items-center">
+//                                       <Paperclip className="w-3 h-3 mr-1" />
+//                                       Anexos: {topic.anexos.length}
+//                                     </p>
+//                                   </div>
+//                                 )}
+//                               </Link>
+//                               <div className="absolute top-4 right-4">
+//                                 <button
+//                                   onClick={(e) => handleMoreOptionsClick(e, topic.idTopico, 'topic')} // Added type
+//                                   className="text-gray-500 hover:text-gray-700"
+//                                 >
+//                                   <MoreVertical size={18} />
+//                                 </button>
+//                                 {openMenuId === topic.idTopico && (
+//                                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+//                                     <button
+//                                       onClick={(e) => {
+//                                         e.preventDefault();
+//                                         e.stopPropagation();
+//                                         handleEditTopic(topic);
+//                                       }}
+//                                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+//                                     >
+//                                       <Edit size={14} className="inline mr-2" />
+//                                       Editar
+//                                     </button>
+//                                     <button
+//                                       onClick={(e) => {
+//                                         e.preventDefault();
+//                                         e.stopPropagation();
+//                                         handleDeleteTopic(topic);
+//                                       }}
+//                                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+//                                     >
+//                                       <Trash2 size={14} className="inline mr-2" />
+//                                       Excluir
+//                                     </button>
+//                                   </div>
+//                                 )}
+//                               </div>
+//                             </div>
+//                           ))
+//                         ) : (
+//                           <NoResultsMessage message="Nenhum tópico encontrado." />
+//                         )}
+//                       </div>
+//                     </div>
+//                   )}
 //                   {activeTab === 'categories' && (
 //                     <div>
 //                       <h2 className="text-xl font-semibold mb-4">Lista de Categorias</h2>
 //                       <div className="space-y-4">
-//                         {filteredCategories.map((category) => (
-//                           <div key={category.idCategoria} className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow duration-200">
-//                             <h3 className="text-lg font-semibold">{category.titulo}</h3>
-//                             <p className="text-sm text-gray-600">{category.subTitulo}</p>
-//                             <p className="text-xs text-gray-500 mt-2">
-//                               Criado por: {category.criadoPor.nome} em {new Date(category.criadoEm).toLocaleDateString('pt-BR')}
-//                             </p>
-//                             <p className="text-xs text-gray-500">
-//                               Tópicos: {category.topicos ? category.topicos.length : 0}
-//                             </p>
-//                           </div>
-//                         ))}
+//                         {filteredCategories.length > 0 ? (
+//                           filteredCategories.map((category) => (
+//                             <div key={category.idCategoria} className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow duration-200 relative">
+//                               <h3 className="text-lg font-semibold">{category.titulo}</h3>
+//                               <p className="text-sm text-gray-600">{category.subTitulo}</p>
+//                               <p className="text-xs text-gray-500 mt-2">
+//                                 Criado por: {category.criadoPor.nome} em {new Date(category.criadoEm).toLocaleDateString('pt-BR')}
+//                               </p>
+//                               <p className="text-xs text-gray-500">
+//                                 Tópicos: {category.topicos ? category.topicos.length : 0}
+//                               </p>
+//                               <div className="absolute top-4 right-4">
+//                                 <button
+//                                   onClick={(e) => handleMoreOptionsClick(e, category.idCategoria, 'category')}
+//                                   className="text-gray-500 hover:text-gray-700"
+//                                 >
+//                                   <MoreVertical size={18} />
+//                                 </button>
+//                                 {openMenuId === category.idCategoria && (
+//                                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+//                                     <button
+//                                       onClick={(e) => {
+//                                         e.preventDefault();
+//                                         e.stopPropagation();
+//                                         handleEditCategory(category);
+//                                       }}
+//                                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+//                                     >
+//                                       <Edit size={14} className="inline mr-2" />
+//                                       Editar
+//                                     </button>
+//                                     <button
+//                                       onClick={(e) => {
+//                                         e.preventDefault();
+//                                         e.stopPropagation();
+//                                         handleDeleteCategory(category);
+//                                       }}
+//                                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+//                                     >
+//                                       <Trash2 size={14} className="inline mr-2" />
+//                                       Excluir
+//                                     </button>
+//                                   </div>
+//                                 )}
+//                               </div>
+//                             </div>
+//                           ))
+//                         ) : (
+//                           <NoResultsMessage message="Nenhuma categoria encontrada." />
+//                         )}
 //                       </div>
 //                     </div>
 //                   )}
@@ -557,6 +730,21 @@
 //         onClose={handleCloseNewTopicModal}
 //         topicToEdit={topicToEdit}
 //       />
+//       <Modal
+//         isOpen={isDeleteCategoryModalOpen}
+//         onClose={() => setIsDeleteCategoryModalOpen(false)}
+//         onConfirm={confirmDeleteCategory}
+//         title="Confirmar Exclusão de Categoria"
+//         message={`Tem certeza que deseja excluir a categoria "${categoryToDelete?.titulo}"?`}
+//       />
+//       {isEditCategoryModalOpen && (
+//         <EditCategoryModal
+//           isOpen={isEditCategoryModalOpen}
+//           onClose={() => setIsEditCategoryModalOpen(false)}
+//           category={categoryToEdit}
+//           // Add any necessary props for the EditCategoryModal component
+//         />
+//       )}
 //     </div>
 //   );
 // };
@@ -567,16 +755,34 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ForumContext } from '../../Context/Dados';
 import Modal from '../../Components/Modal/Modal';
-import { Trash2, Edit, Paperclip, UserCog, Settings, MoreVertical, Search, ChevronDown } from 'lucide-react';
+import { Trash2, Edit, Paperclip, UserCog, Settings, MoreVertical, Search, ChevronDown, AlertCircle } from 'lucide-react';
 import { toast } from 'react-toastify';
 import SimplifiedHeader from '../../Components/SimplifiedHeader/SimplifiedHeader';
 import Loading from '../../Components/Loading/Carregando';
 import ProfilePhotoModal from '../../Components/UpdatePhotoProfile/AtualizarFoto';
 import PasswordChangeModal from '../../Components/PasswordChange/PasswordChange';
 import NewTopicModal from '../../Components/AddTopic/AddTopic';
+import EditCategoryModal from '../../Components/EditCategoryModal/EditCategoryModal';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../Components/Tooltip/Tooltip";
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('pt-BR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+};
+
+const NoResultsMessage = ({ message }) => (
+  <div className="flex items-center justify-center p-4 text-gray-500">
+    <AlertCircle className="mr-2" size={20} />
+    <p>{message}</p>
+  </div>
+);
 
 const UserInfoScreen = () => {
-  const { user, categories, topicos, fetchTopicos, allUsers, fetchAllUsers, deleteUser, alterarPermissaoUsuario, activateUserAccount, updateProfilePhoto, updatePassword, deleteTopic } = useContext(ForumContext);
+  const { user, categories, topicos, fetchTopicos, allUsers, fetchAllUsers, deleteUser, alterarPermissaoUsuario, activateUserAccount, updateProfilePhoto, updatePassword, deleteTopic, deleteCategory, fetchCategories } = useContext(ForumContext);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isPermissionModalOpen, setIsPermissionModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
@@ -597,6 +803,10 @@ const UserInfoScreen = () => {
   const [isNewTopicModalOpen, setIsNewTopicModalOpen] = useState(false);
   const [topicToEdit, setTopicToEdit] = useState(null);
   const [expandedUsers, setExpandedUsers] = useState({});
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
+  const [isDeleteCategoryModalOpen, setIsDeleteCategoryModalOpen] = useState(false);
+  const [categoryToEdit, setCategoryToEdit] = useState(null);
+  const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -770,10 +980,10 @@ const UserInfoScreen = () => {
     }
   };
 
-  const handleMoreOptionsClick = (e, topicId) => {
+  const handleMoreOptionsClick = (e, id, type) => {
     e.preventDefault();
     e.stopPropagation();
-    setOpenMenuId(openMenuId === topicId ? null : topicId);
+    setOpenMenuId(openMenuId === id ? null : id);
   };
 
   const handleEditTopic = (topic) => {
@@ -791,6 +1001,31 @@ const UserInfoScreen = () => {
       ...prev,
       [userId]: !prev[userId]
     }));
+  };
+
+  const handleDeleteCategory = (category) => {
+    setCategoryToDelete(category);
+    setIsDeleteCategoryModalOpen(true);
+  };
+
+  const confirmDeleteCategory = async () => {
+    if (categoryToDelete) {
+      try {
+        await deleteCategory(categoryToDelete.idCategoria);
+        setIsDeleteCategoryModalOpen(false);
+        setCategoryToDelete(null);
+        toast.success('Categoria deletada com sucesso!');
+        await fetchCategories();
+      } catch (error) {
+        console.error('Erro ao deletar categoria:', error);
+        toast.error('Falha ao deletar categoria. Por favor, tente novamente.');
+      }
+    }
+  };
+
+  const handleEditCategory = (category) => {
+    setCategoryToEdit(category);
+    setIsEditCategoryModalOpen(true);
   };
 
   if (isLoading) {
@@ -820,7 +1055,7 @@ const UserInfoScreen = () => {
           <div className="text-center sm:text-left">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{user.nome}</h1>
             <p className="mt-1 text-sm text-gray-500">
-              Membro desde {new Date(user.criadoEm).toLocaleDateString('pt-BR')}
+              Membro desde {formatDate(user.criadoEm)}
             </p>
           </div>
           <div className="absolute top-4 right-4">
@@ -932,47 +1167,85 @@ const UserInfoScreen = () => {
                             </tr>
                           </thead>
                           <tbody className="bg-white divide-y divide-gray-200">
-                            {filteredUsers.map((userItem) => (
-                              <tr key={userItem.idUsuario}>
-                                <td className="px-6 py-4 whitespace-nowrap">{userItem.nome}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{userItem.email}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{userItem.role}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{new Date(userItem.criadoEm).toLocaleDateString('pt-BR')}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <div className="flex items-center space-x-2">
-                                    <button
-                                      onClick={() => handleDeleteUser(userItem)}
-                                      className="text-red-600 hover:text-red-900"
-                                    >
-                                      <Trash2 className="w-5 h-5" />
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        setIsPasswordModalOpen(true);
-                                        setUserToChangePermission(userItem);
-                                      }}
-                                      className="text-blue-600 hover:text-blue-900"
-                                    >
-                                      <Edit className="w-5 h-5" />
-                                    </button>
-                                    <button
-                                      onClick={() => handleChangePermission(userItem)}
-                                      className="text-green-600 hover:text-green-900"
-                                    >
-                                      <UserCog className="w-5 h-5" />
-                                    </button>
-                                    {!userItem.ativo && (
-                                      <button
-                                        onClick={() => handleActivateUser(userItem)}
-                                        className="text-yellow-600 hover:text-yellow-900"
-                                      >
-                                        <UserCog className="w-5 h-5" />
-                                      </button>
-                                    )}
-                                  </div>
+                            {filteredUsers.length > 0 ? (
+                              filteredUsers.map((userItem) => (
+                                <tr key={userItem.idUsuario}>
+                                  <td className="px-6 py-4 whitespace-nowrap">{userItem.nome}</td>
+                                  <td className="px-6 py-4 whitespace-nowrap">{userItem.email}</td>
+                                  <td className="px-6 py-4 whitespace-nowrap">{userItem.role}</td>
+                                  <td className="px-6 py-4 whitespace-nowrap">{formatDate(userItem.criadoEm)}</td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="flex items-center space-x-2">
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <button
+                                              onClick={() => handleDeleteUser(userItem)}
+                                              className="text-red-600 hover:text-red-900"
+                                            >
+                                              <Trash2 className="w-5 h-5" />
+                                            </button>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Deletar usuário</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <button
+                                              onClick={() => {
+                                                setIsPasswordModalOpen(true);
+                                                setUserToChangePermission(userItem);
+                                              }}
+                                              className="text-blue-600 hover:text-blue-900"
+                                            >
+                                              <Edit className="w-5 h-5" />
+                                            </button>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Editar senha</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <button
+                                              onClick={() => handleChangePermission(userItem)}
+                                              className="text-green-600 hover:text-green-900"
+                                            >
+                                              <UserCog className="w-5 h-5" />
+                                            </button>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Alterar permissão</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                        {!userItem.ativo && (
+                                          <Tooltip>
+                                            <TooltipTrigger asChild>
+                                              <button
+                                                onClick={() => handleActivateUser(userItem)}
+                                                className="text-yellow-600 hover:text-yellow-900"
+                                              >
+                                                <UserCog className="w-5 h-5" />
+                                              </button>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                              <p>Ativar conta</p>
+                                            </TooltipContent>
+                                          </Tooltip>
+                                        )}
+                                      </TooltipProvider>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
+                                <td colSpan="5">
+                                  <NoResultsMessage message="Nenhum usuário encontrado." />
                                 </td>
                               </tr>
-                            ))}
+                            )}
                           </tbody>
                         </table>
                       </div>
@@ -992,7 +1265,7 @@ const UserInfoScreen = () => {
                                 <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                   <dt className="text-sm font-medium text-gray-500">Data de Criação</dt>
                                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                    {new Date(userItem.criadoEm).toLocaleDateString('pt-BR')}
+                                    {formatDate(userItem.criadoEm)}
                                   </dd>
                                 </div>
                               </dl>
@@ -1009,39 +1282,69 @@ const UserInfoScreen = () => {
                               </div>
                               {expandedUsers[userItem.idUsuario] && (
                                 <div className="mt-2 space-y-2">
-                                  <button
-                                    onClick={() => handleDeleteUser(userItem)}
-                                    className="w-full text-left px-2 py-1 text-sm text-red-600 hover:bg-red-100 rounded"
-                                  >
-                                    <Trash2 className="w-4 h-4 inline mr-2" />
-                                    Deletar Usuário
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      setIsPasswordModalOpen(true);
-                                      setUserToChangePermission(userItem);
-                                    }}
-                                    className="w-full text-left px-2 py-1 text-sm text-blue-600 hover:bg-blue-100 rounded"
-                                  >
-                                    <Edit className="w-4 h-4 inline mr-2" />
-                                    Alterar Senha
-                                  </button>
-                                  <button
-                                    onClick={() => handleChangePermission(userItem)}
-                                    className="w-full text-left px-2 py-1 text-sm text-green-600 hover:bg-green-100 rounded"
-                                  >
-                                    <UserCog className="w-4 h-4 inline mr-2" />
-                                    Alterar Permissão
-                                  </button>
-                                  {!userItem.ativo && (
-                                    <button
-                                      onClick={() => handleActivateUser(userItem)}
-                                      className="w-full text-left px-2 py-1 text-sm text-yellow-600 hover:bg-yellow-100 rounded"
-                                    >
-                                      <UserCog className="w-4 h-4 inline mr-2" />
-                                      Ativar Usuário
-                                    </button>
-                                  )}
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={() => handleDeleteUser(userItem)}
+                                          className="w-full text-left px-2 py-1 text-sm text-red-600 hover:bg-red-100 rounded"
+                                        >
+                                          <Trash2 className="w-4 h-4 inline mr-2" />
+                                          Deletar Usuário
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Deletar usuário</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={() => {
+                                            setIsPasswordModalOpen(true);
+                                            setUserToChangePermission(userItem);
+                                          }}
+                                          className="w-full text-left px-2 py-1 text-sm text-blue-600 hover:bg-blue-100 rounded"
+                                        >
+                                          <Edit className="w-4 h-4 inline mr-2" />
+                                          Alterar Senha
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Editar senha</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={() => handleChangePermission(userItem)}
+                                          className="w-full text-left px-2 py-1 text-sm text-green-600 hover:bg-green-100 rounded"
+                                        >
+                                          <UserCog className="w-4 h-4 inline mr-2" />
+                                          Alterar Permissão
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Alterar permissão</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                    {!userItem.ativo && (
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <button
+                                            onClick={() => handleActivateUser(userItem)}
+                                            className="w-full text-left px-2 py-1 text-sm text-yellow-600 hover:bg-yellow-100 rounded"
+                                          >
+                                            <UserCog className="w-4 h-4 inline mr-2" />
+                                            Ativar Usuário
+                                          </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p>Ativar conta</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    )}
+                                  </TooltipProvider>
                                 </div>
                               )}
                             </div>
@@ -1054,65 +1357,69 @@ const UserInfoScreen = () => {
                     <div>
                       <h2 className="text-xl font-semibold mb-4">Lista de Tópicos</h2>
                       <div className="space-y-4">
-                        {filteredTopics.map((topic) => (
-                          <div key={topic.idTopico} className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow duration-200 relative">
-                            <Link to={`/topic/${topic.idTopico}`} className="block">
-                              <h3 className="text-lg font-semibold pr-8">{topic.titulo}</h3>
-                              <p className="text-sm text-gray-600">{topic.descricao}</p>
-                              <p className="text-xs text-gray-500 mt-2">
-                                Criado por: {topic.criadoPor.nome} em {new Date(topic.criadoEm).toLocaleDateString('pt-BR')}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                Categoria: {topic.categoria.titulo}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                Respostas: {topic.respostas.length}
-                              </p>
-                              {topic.anexos && topic.anexos.length > 0 && (
-                                <div className="mt-2">
-                                  <p className="text-xs font-semibold flex items-center">
-                                    <Paperclip className="w-3 h-3 mr-1" />
-                                    Anexos: {topic.anexos.length}
-                                  </p>
-                                </div>
-                              )}
-                            </Link>
-                            <div className="absolute top-4 right-4">
-                              <button
-                                onClick={(e) => handleMoreOptionsClick(e, topic.idTopico)}
-                                className="text-gray-500 hover:text-gray-700"
-                              >
-                                <MoreVertical size={18} />
-                              </button>
-                              {openMenuId === topic.idTopico && (
-                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                                  <button
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      handleEditTopic(topic);
-                                    }}
-                                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                                  >
-                                    <Edit size={14} className="inline mr-2" />
-                                    Editar
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      handleDeleteTopic(topic);
-                                    }}
-                                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                                  >
-                                    <Trash2 size={14} className="inline mr-2" />
-                                    Excluir
-                                  </button>
-                                </div>
-                              )}
+                        {filteredTopics.length > 0 ? (
+                          filteredTopics.map((topic) => (
+                            <div key={topic.idTopico} className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow duration-200 relative">
+                              <Link to={`/topic/${topic.idTopico}`} className="block">
+                                <h3 className="text-lg font-semibold pr-8">{topic.titulo}</h3>
+                                <p className="text-sm text-gray-600">{topic.descricao}</p>
+                                <p className="text-xs text-gray-500 mt-2">
+                                  Criado por: {topic.criadoPor.nome} em {formatDate(topic.criadoEm)}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Categoria: {topic.categoria.titulo}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Respostas: {topic.respostas ? topic.respostas.length : 0}
+                                </p>
+                                {topic.anexos && topic.anexos.length > 0 && (
+                                  <div className="mt-2">
+                                    <p className="text-xs font-semibold flex items-center">
+                                      <Paperclip className="w-3 h-3 mr-1" />
+                                      Anexos: {topic.anexos.length}
+                                    </p>
+                                  </div>
+                                )}
+                              </Link>
+                              <div className="absolute top-4 right-4">
+                                <button
+                                  onClick={(e) => handleMoreOptionsClick(e, topic.idTopico, 'topic')}
+                                  className="text-gray-500 hover:text-gray-700"
+                                >
+                                  <MoreVertical size={18} />
+                                </button>
+                                {openMenuId === topic.idTopico && (
+                                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                                    <button
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleEditTopic(topic);
+                                      }}
+                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                                    >
+                                      <Edit size={14} className="inline mr-2" />
+                                      Editar
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleDeleteTopic(topic);
+                                      }}
+                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                                    >
+                                      <Trash2 size={14} className="inline mr-2" />
+                                      Excluir
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))
+                        ) : (
+                          <NoResultsMessage message="Nenhum tópico encontrado." />
+                        )}
                       </div>
                     </div>
                   )}
@@ -1120,18 +1427,56 @@ const UserInfoScreen = () => {
                     <div>
                       <h2 className="text-xl font-semibold mb-4">Lista de Categorias</h2>
                       <div className="space-y-4">
-                        {filteredCategories.map((category) => (
-                          <div key={category.idCategoria} className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow duration-200">
-                            <h3 className="text-lg font-semibold">{category.titulo}</h3>
-                            <p className="text-sm text-gray-600">{category.subTitulo}</p>
-                            <p className="text-xs text-gray-500 mt-2">
-                              Criado por: {category.criadoPor.nome} em {new Date(category.criadoEm).toLocaleDateString('pt-BR')}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              Tópicos: {category.topicos ? category.topicos.length : 0}
-                            </p>
-                          </div>
-                        ))}
+                        {filteredCategories.length > 0 ? (
+                          filteredCategories.map((category) => (
+                            <div key={category.idCategoria} className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow duration-200 relative">
+                              <h3 className="text-lg font-semibold">{category.titulo}</h3>
+                              <p className="text-sm text-gray-600">{category.subTitulo}</p>
+                              <p className="text-xs text-gray-500 mt-2">
+                                Criado por: {category.criadoPor.nome} em {new Date(category.criadoEm).toLocaleDateString('pt-BR')}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                Tópicos: {category.topicos ? category.topicos.length : 0}
+                              </p>
+                              <div className="absolute top-4 right-4">
+                                <button
+                                  onClick={(e) => handleMoreOptionsClick(e, category.idCategoria, 'category')}
+                                  className="text-gray-500 hover:text-gray-700"
+                                >
+                                  <MoreVertical size={18} />
+                                </button>
+                                {openMenuId === category.idCategoria && (
+                                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                                    <button
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleEditCategory(category);
+                                      }}
+                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                                    >
+                                      <Edit size={14} className="inline mr-2" />
+                                      Editar
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleDeleteCategory(category);
+                                      }}
+                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                                    >
+                                      <Trash2 size={14} className="inline mr-2" />
+                                      Excluir
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <NoResultsMessage message="Nenhuma categoria encontrada." />
+                        )}
                       </div>
                     </div>
                   )}
@@ -1156,8 +1501,8 @@ const UserInfoScreen = () => {
         message={
           <div>
             <p>Tem certeza que deseja alterar a permissão de {userToChangePermission?.nome} para {newPermission}?</p>
-            <p className="text-sm text-gray-500 mt-2">
-              {newPermission === 'ADMIN'
+            <p className="textsm text-gray-500 mt-2">
+              {newPermission ==='ADMIN'
                 ? 'Isso concederá acesso administrativo completo ao usuário.'
                 : 'Isso removerá o acesso administrativo do usuário.'}
             </p>
@@ -1198,6 +1543,20 @@ const UserInfoScreen = () => {
         onClose={handleCloseNewTopicModal}
         topicToEdit={topicToEdit}
       />
+      <Modal
+        isOpen={isDeleteCategoryModalOpen}
+        onClose={() => setIsDeleteCategoryModalOpen(false)}
+        onConfirm={confirmDeleteCategory}
+        title="Confirmar Exclusão de Categoria"
+        message={`Tem certeza que deseja excluir a categoria "${categoryToDelete?.titulo}"?`}
+      />
+      {isEditCategoryModalOpen && (
+        <EditCategoryModal
+          isOpen={isEditCategoryModalOpen}
+          onClose={() => setIsEditCategoryModalOpen(false)}
+          category={categoryToEdit}
+        />
+      )}
     </div>
   );
 };

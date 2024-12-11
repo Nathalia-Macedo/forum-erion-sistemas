@@ -1,11 +1,12 @@
 // import React, { useState, useEffect, useContext } from 'react';
-// import { useParams } from 'react-router-dom';
+// import { useParams, Link } from 'react-router-dom';
 // import { ForumContext } from '../Context/Dados';
 // import { FileText, Trash2 } from 'lucide-react';
 // import { toast } from 'react-toastify';
 // import Loading from '../Components/Loading/Carregando';
 // import Modal from '../Components/Modal/Modal';
 // import SimplifiedHeader from '../Components/SimplifiedHeader/SimplifiedHeader';
+
 // const TopicDetail = () => {
 //   const { idTopico } = useParams();
 //   const { 
@@ -114,8 +115,17 @@
 //           <div className="p-6 sm:p-8">
 //             <h2 className="text-2xl font-semibold text-gray-900 mb-2">{currentTopic.titulo}</h2>
 //             <p className="text-gray-600 mb-6">{currentTopic.descricao}</p>
-//             <div className="flex justify-between text-sm text-gray-500 mb-6">
-//               <span>Por: {currentTopic.criadoPor.nome}</span>
+//             <div className="flex items-center justify-between text-sm text-gray-500 mb-6">
+//               <div className="flex items-center">
+//                 <img
+//                   src={currentTopic.criadoPor.foto || "https://via.placeholder.com/40"}
+//                   alt={currentTopic.criadoPor.nome}
+//                   className="w-10 h-10 rounded-full mr-3"
+//                 />
+//                 <Link to={`/user/${currentTopic.criadoPor.idUsuario}`} className="hover:underline">
+//                   {currentTopic.criadoPor.nome}
+//                 </Link>
+//               </div>
 //               <span>Data: {new Date(currentTopic.criadoEm).toLocaleDateString()}</span>
 //             </div>
 
@@ -147,9 +157,18 @@
 //                 ) : (
 //                   localRespostas.slice(0, visibleResponses).map((resposta) => (
 //                     <div key={resposta.idResposta} className="bg-gray-50 rounded-lg p-4 relative">
+//                       <div className="flex items-center mb-3">
+//                         <img
+//                           src={resposta.criadoPor.foto || "https://via.placeholder.com/40"}
+//                           alt={resposta.criadoPor.nome}
+//                           className="w-8 h-8 rounded-full mr-2"
+//                         />
+//                         <Link to={`/user/${resposta.criadoPor.idUsuario}`} className="text-blue-600 hover:underline">
+//                           {resposta.criadoPor.nome}
+//                         </Link>
+//                       </div>
 //                       <p className="text-gray-700 mb-3">{resposta.descricao}</p>
 //                       <div className="flex justify-between text-sm text-gray-500">
-//                         <span>Por: {resposta.criadoPor.nome}</span>
 //                         <span>Data: {new Date(resposta.criadoEm).toLocaleDateString()}</span>
 //                       </div>
 //                       {user && resposta.criadoPor.idUsuario === user.idUsuario && (
@@ -214,7 +233,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ForumContext } from '../Context/Dados';
-import { FileText, Trash2 } from 'lucide-react';
+import { FileText, Trash2, LinkIcon } from 'lucide-react';
 import { toast } from 'react-toastify';
 import Loading from '../Components/Loading/Carregando';
 import Modal from '../Components/Modal/Modal';
@@ -356,6 +375,26 @@ const TopicDetail = () => {
                     >
                       <FileText size={20} className="text-blue-600" />
                       <span className="text-sm text-gray-700 truncate max-w-[150px]">{anexo.nomeArquivo}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {currentTopic.links && currentTopic.links.length > 0 && (
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Links</h3>
+                <div className="flex flex-wrap gap-3">
+                  {currentTopic.links.map((link, index) => (
+                    <a
+                      key={index}
+                      href={link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
+                    >
+                      <LinkIcon size={20} className="text-blue-600" />
+                      <span className="text-sm text-gray-700 truncate max-w-[150px]">{link}</span>
                     </a>
                   ))}
                 </div>

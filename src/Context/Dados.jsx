@@ -439,63 +439,79 @@ export const ForumProvider = ({ children }) => {
     }
   }, []);
 
-  const criarTopico = async (titulo, idCategoria, descricao, arquivos, links) => {
-    const token = localStorage.getItem('authToken');
-    if (!token || !user) {
-      throw new Error('Usuário não autenticado');
-    }
   
-    const topicoData = {
-      titulo: titulo,
-      descricao: descricao,
-      categoria: {
-        idCategoria: idCategoria
-      },
-      criadoPor: {
-        idUsuario: user.idUsuario
-      },
-      links: links
-    };
   
-    const formData = new FormData();
-    formData.append('topico', JSON.stringify(topicoData));
-    
-    // Modificado: agora usando 'file' como chave para cada arquivo
-    if (arquivos && arquivos.length > 0) {
-      arquivos.forEach(arquivo => {
-        formData.append('file', arquivo);
-      });
-    }
+
   
-    // Adicionando logs para debug
-    console.log('Dados do tópico:', topicoData);
-    console.log('Arquivos:', arquivos);
-    console.log('FormData entries:', [...formData.entries()]);
-  
-    try {
-      const response = await fetch(`${BASE_URL}/topico`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
-  
-      console.log('Response status:', response.status);
-      const responseText = await response.text();
-      console.log('Resposta do servidor:', responseText);
-  
-      if (response.status === 201) {
-        await fetchCategories();
-        return true;
-      } else {
-        throw new Error(`Falha ao criar tópico: ${response.status}. Detalhes: ${responseText}`);
-      }
-    } catch (error) {
-      console.error('Erro ao criar tópico:', error);
-      throw error;
-    }
+const criarTopico = async (titulo, idCategoria, descricao, arquivos, links = []) => {
+  const token = localStorage.getItem('authToken');
+  if (!token || !user) {
+    throw new Error('Usuário não autenticado');
+  }
+
+  const topicoData = {
+    titulo: titulo,
+    descricao: descricao,
+    categoria: {
+      idCategoria: idCategoria
+    },
+    criadoPor: {
+      idUsuario: user.idUsuario
+    },
+    links: links
   };
+
+  const formData = new FormData();
+  formData.append('topico', JSON.stringify(topicoData));
+  
+  if (arquivos && arquivos.length > 0) {
+    arquivos.forEach((arquivo, index) => {
+      if (arquivo.isLink) {
+        formData.append(`link_${index}`, arquivo.file);
+      } else if (arquivo instanceof File) {
+        formData.append(`file_${index}`, arquivo);
+      }
+    });
+  }
+
+  console.log('Dados do tópico:', topicoData);
+  console.log('Arquivos:', arquivos);
+  
+  const formDataEntries = [];
+  for (let pair of formData.entries()) {
+    formDataEntries.push({
+      key: pair[0],
+      value: pair[1] instanceof File ? `File: ${pair[1].name}` : pair[1]
+    });
+  }
+  console.log('FormData entries:', formDataEntries);
+
+  try {
+    const response = await fetch(`${BASE_URL}/topico`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    console.log('Response:', response);
+    const responseText = await response.text();
+    console.log('Resposta do servidor:', responseText);
+
+    if (response.status === 201) {
+      await fetchCategories();
+      return true;
+    } else {
+      throw new Error(`Falha ao criar tópico: ${response.status}. Detalhes: ${responseText}`);
+    }
+  } catch (error) {
+    console.error('Erro ao criar tópico:', error);
+    throw error;
+  }
+};
+
+
   
   
   

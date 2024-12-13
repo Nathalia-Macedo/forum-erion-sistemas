@@ -576,12 +576,69 @@ const criarTopico = async (titulo, idCategoria, descricao, arquivos, links = [])
     }
   };
 
-  const criarResposta = useCallback(async (idTopico, descricao) => {
+  // const criarResposta = useCallback(async (idTopico, descricao) => {
+  //   const token = localStorage.getItem('authToken');
+  //   if (!token || !user) {
+  //     throw new Error('Usuário não autenticado');
+  //   }
+
+  //   const respostaData = {
+  //     descricao,
+  //     topico: {
+  //       idTopico
+  //     },
+  //     criadoPor: {
+  //       idUsuario: user.idUsuario
+  //     }
+  //   };
+
+  //   try {
+  //     const response = await fetch(`${BASE_URL}/resposta`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': `Bearer ${token}`
+  //       },
+  //       body: JSON.stringify(respostaData),
+  //     });
+
+  //     if (response.ok && response.status === 201) {
+  //       console.log('Resposta criada com sucesso');
+        
+  //       const novaResposta = {
+  //         idResposta: Date.now(),
+  //         descricao,
+  //         criadoPor: {
+  //           idUsuario: user.idUsuario,
+  //           nome: user.nome
+  //         },
+  //         criadoEm: new Date().toISOString()
+  //       };
+        
+  //       setRespostas(prev => ({
+  //         ...prev,
+  //         [idTopico]: [...(prev[idTopico] || []), novaResposta]
+  //       }));
+
+  //       return novaResposta;
+  //     } else {
+  //       throw new Error(`Falha ao criar resposta: ${response.status}`);
+  //     }
+  //   } catch (error) {
+  //     console.error('Erro ao criar resposta:', error);
+  //     throw error;
+  //   }
+  // }, [user]);
+
+
+  const criarResposta = useCallback(async (idTopico, descricao, arquivos) => {
+    console.log('Iniciando criação de resposta');
     const token = localStorage.getItem('authToken');
     if (!token || !user) {
+      console.log('Usuário não autenticado');
       throw new Error('Usuário não autenticado');
     }
-
+  
     const respostaData = {
       descricao,
       topico: {
@@ -591,37 +648,68 @@ const criarTopico = async (titulo, idCategoria, descricao, arquivos, links = [])
         idUsuario: user.idUsuario
       }
     };
-
+  
+    console.log('Dados da resposta:', respostaData);
+  
+    const formData = new FormData();
+    formData.append('resposta', JSON.stringify(respostaData));
+  
+    console.log('Arquivos recebidos:', arquivos);
+    if (arquivos && arquivos.length > 0) {
+      arquivos.forEach((arquivo, index) => {
+        console.log(`Anexando arquivo ${index + 1}:`, arquivo.name);
+        formData.append('file', arquivo);
+      });
+    }
+  
+    console.log('FormData criado. Chaves:', [...formData.keys()]);
+  
     try {
+      console.log('Iniciando requisição para:', `${BASE_URL}/resposta`);
       const response = await fetch(`${BASE_URL}/resposta`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(respostaData),
+        body: formData
       });
-
-      if (response.ok && response.status === 201) {
+  
+      console.log('Resposta recebida. Status:', response.status);
+      console.log('Headers da resposta:', Object.fromEntries(response.headers.entries()));
+  
+      if (response.status === 201 && response.ok) {
         console.log('Resposta criada com sucesso');
-        
-        const novaResposta = {
-          idResposta: Date.now(),
-          descricao,
-          criadoPor: {
-            idUsuario: user.idUsuario,
-            nome: user.nome
-          },
-          criadoEm: new Date().toISOString()
-        };
+        const responseText = await response.text();
+        console.log('Corpo da resposta:', responseText);
+  
+        let novaResposta;
+        try {
+          novaResposta = JSON.parse(responseText);
+        } catch (error) {
+          console.error('Erro ao fazer parse da resposta:', error);
+          novaResposta = { 
+            descricao, 
+            criadoPor: user, 
+            criadoEm: new Date().toISOString(),
+            anexos: arquivos.map(arquivo => ({
+              nomeArquivo: arquivo.name,
+              url: URL.createObjectURL(arquivo)
+            }))
+          };
+        }
+  
+        console.log('Nova resposta processada:', novaResposta);
         
         setRespostas(prev => ({
           ...prev,
           [idTopico]: [...(prev[idTopico] || []), novaResposta]
         }));
-
+  
         return novaResposta;
       } else {
+        console.error('Falha ao criar resposta. Status:', response.status);
+        const errorText = await response.text();
+        console.error('Detalhes do erro:', errorText);
         throw new Error(`Falha ao criar resposta: ${response.status}`);
       }
     } catch (error) {
@@ -629,6 +717,12 @@ const criarTopico = async (titulo, idCategoria, descricao, arquivos, links = [])
       throw error;
     }
   }, [user]);
+  
+  
+
+ 
+  
+  
  
   const searchAll = useCallback((searchTerm) => {
     const lowercaseTerm = searchTerm.toLowerCase();

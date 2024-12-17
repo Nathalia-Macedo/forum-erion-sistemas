@@ -15,6 +15,7 @@ export const ForumProvider = ({ children }) => {
   const BASE_URL = 'https://ander4793.c44.integrator.host/api/v1';
 
   const deletarCategoria = async (idCategoria) => {
+
     const token = localStorage.getItem('authToken');
     if (!token) {
       throw new Error('Usuário não autenticado');
@@ -27,7 +28,7 @@ export const ForumProvider = ({ children }) => {
           'Authorization': `Bearer ${token}`
         }
       });
-  
+      console.log(response)
       if (!response.ok) {
         throw new Error('Falha ao deletar categoria');
       }
@@ -228,7 +229,7 @@ export const ForumProvider = ({ children }) => {
       return {
         user: userData,
         topics: userTopics,
-        categories: userCategories
+        categories:   userCategories
       };
     } catch (error) {
       console.error('Erro ao buscar perfil do usuário:', error);
@@ -576,152 +577,191 @@ const criarTopico = async (titulo, idCategoria, descricao, arquivos, links = [])
     }
   };
 
-  // const criarResposta = useCallback(async (idTopico, descricao) => {
-  //   const token = localStorage.getItem('authToken');
-  //   if (!token || !user) {
-  //     throw new Error('Usuário não autenticado');
-  //   }
-
-  //   const respostaData = {
-  //     descricao,
-  //     topico: {
-  //       idTopico
-  //     },
-  //     criadoPor: {
-  //       idUsuario: user.idUsuario
-  //     }
-  //   };
-
-  //   try {
-  //     const response = await fetch(`${BASE_URL}/resposta`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': `Bearer ${token}`
-  //       },
-  //       body: JSON.stringify(respostaData),
-  //     });
-
-  //     if (response.ok && response.status === 201) {
-  //       console.log('Resposta criada com sucesso');
-        
-  //       const novaResposta = {
-  //         idResposta: Date.now(),
-  //         descricao,
-  //         criadoPor: {
-  //           idUsuario: user.idUsuario,
-  //           nome: user.nome
-  //         },
-  //         criadoEm: new Date().toISOString()
-  //       };
-        
-  //       setRespostas(prev => ({
-  //         ...prev,
-  //         [idTopico]: [...(prev[idTopico] || []), novaResposta]
-  //       }));
-
-  //       return novaResposta;
-  //     } else {
-  //       throw new Error(`Falha ao criar resposta: ${response.status}`);
-  //     }
-  //   } catch (error) {
-  //     console.error('Erro ao criar resposta:', error);
-  //     throw error;
-  //   }
-  // }, [user]);
-
-
-  const criarResposta = useCallback(async (idTopico, descricao, arquivos) => {
-    console.log('Iniciando criação de resposta');
-    const token = localStorage.getItem('authToken');
-    if (!token || !user) {
-      console.log('Usuário não autenticado');
-      throw new Error('Usuário não autenticado');
-    }
-  
-    const respostaData = {
-      descricao,
-      topico: {
-        idTopico
-      },
-      criadoPor: {
-        idUsuario: user.idUsuario
-      }
-    };
-  
-    console.log('Dados da resposta:', respostaData);
-  
-    const formData = new FormData();
-    formData.append('resposta', JSON.stringify(respostaData));
-  
-    console.log('Arquivos recebidos:', arquivos);
-    if (arquivos && arquivos.length > 0) {
-      arquivos.forEach((arquivo, index) => {
-        console.log(`Anexando arquivo ${index + 1}:`, arquivo.name);
-        formData.append('file', arquivo);
-      });
-    }
-  
-    console.log('FormData criado. Chaves:', [...formData.keys()]);
-  
-    try {
-      console.log('Iniciando requisição para:', `${BASE_URL}/resposta`);
-      const response = await fetch(`${BASE_URL}/resposta`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
-  
-      console.log('Resposta recebida. Status:', response.status);
-      console.log('Headers da resposta:', Object.fromEntries(response.headers.entries()));
-  
-      if (response.status === 201 && response.ok) {
-        console.log('Resposta criada com sucesso');
-        const responseText = await response.text();
-        console.log('Corpo da resposta:', responseText);
-  
-        let novaResposta;
-        try {
-          novaResposta = JSON.parse(responseText);
-        } catch (error) {
-          console.error('Erro ao fazer parse da resposta:', error);
-          novaResposta = { 
-            descricao, 
-            criadoPor: user, 
-            criadoEm: new Date().toISOString(),
-            anexos: arquivos.map(arquivo => ({
-              nomeArquivo: arquivo.name,
-              url: URL.createObjectURL(arquivo)
-            }))
-          };
-        }
-  
-        console.log('Nova resposta processada:', novaResposta);
-        
-        setRespostas(prev => ({
-          ...prev,
-          [idTopico]: [...(prev[idTopico] || []), novaResposta]
-        }));
-  
-        return novaResposta;
-      } else {
-        console.error('Falha ao criar resposta. Status:', response.status);
-        const errorText = await response.text();
-        console.error('Detalhes do erro:', errorText);
-        throw new Error(`Falha ao criar resposta: ${response.status}`);
-      }
-    } catch (error) {
-      console.error('Erro ao criar resposta:', error);
-      throw error;
-    }
-  }, [user]);
-  
-  
-
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const base64String = reader.result;
+        resolve({
+          name: file.name,
+          type: file.type,
+          base64Content: base64String
+        });
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
  
+
+//   const criarResposta = useCallback(async (idTopico, descricao, arquivos = []) => {
+//   console.log('Iniciando criação de resposta');
+//   const token = localStorage.getItem('authToken');
+//   if (!token || !user) {
+//     console.log('Usuário não autenticado');
+//     throw new Error('Usuário não autenticado');
+//   }
+
+//   const formData = new FormData();
+
+//   const respostaData = {
+//     descricao,
+//     topico: {
+//       idTopico
+//     },
+//     criadoPor: {
+//       idUsuario: user.idUsuario
+//     }
+//   };
+
+//   // Append the JSON data for 'resposta'
+//   formData.append('resposta', JSON.stringify(respostaData));
+
+//   // Append files to the 'file' key
+//   arquivos.forEach((arquivo, index) => {
+//     // Extract the base64 data (remove the data URL prefix)
+//     const base64Data = arquivo.base64Content.split(',')[1];
+//     const blob = new Blob([atob(base64Data)], { type: arquivo.type });
+//     formData.append(`file`, blob, arquivo.name);
+//   });
+
+//   console.log('Dados da resposta:', respostaData);
+//   console.log('Número de arquivos:', arquivos.length);
+
+//   try {
+//     console.log('Iniciando requisição para:', `${BASE_URL}/resposta`);
+//     const response = await fetch(`${BASE_URL}/resposta`, {
+//       method: 'POST',
+//       headers: {
+//         'Authorization': `Bearer ${token}`
+//       },
+//       body: formData
+//     });
+
+//     console.log('Resposta recebida. Status:', response.status);
+//     console.log('Headers da resposta:', Object.fromEntries(response.headers.entries()));
+
+//     if (response.status === 201) {
+//       console.log('Resposta criada com sucesso');
+      
+//       // Create a new response object with the data we have
+//       const novaResposta = {
+//         idResposta: Date.now(), // Use a temporary ID
+//         descricao,
+//         criadoPor: {
+//           idUsuario: user.idUsuario,
+//           nome: user.nome
+//         },
+//         criadoEm: new Date().toISOString(),
+//         anexos: arquivos.map(arquivo => ({
+//           nomeArquivo: arquivo.name,
+//           anexo: arquivo.base64Content
+//         }))
+//       };
+
+//       setRespostas(prev => ({
+//         ...prev,
+//         [idTopico]: [novaResposta, ...(prev[idTopico] || [])]
+//       }));
+
+//       return true;
+//     } else {
+//       console.error('Falha ao criar resposta. Status:', response.status);
+//       const errorText = await response.text();
+//       console.error('Detalhes do erro:', errorText);
+//       throw new Error(`Falha ao criar resposta: ${response.status}`);
+//     }
+//   } catch (error) {
+//     console.error('Erro ao criar resposta:', error);
+//     throw error;
+//   }
+// }, [user]);
+
+const criarResposta = useCallback(async (idTopico, descricao, arquivos = []) => {
+  console.log('Iniciando criação de resposta');
   
+  const token = localStorage.getItem('authToken');
+  if (!token || !user) {
+    console.log('Usuário não autenticado');
+    throw new Error('Usuário não autenticado');
+  }
+
+  const formData = new FormData();
+
+  // Estrutura da resposta
+  const respostaData = {
+    descricao,
+    topico: {
+      idTopico
+    },
+    criadoPor: {
+      idUsuario: user.idUsuario
+    }
+  };
+
+  // Adiciona os dados da resposta ao FormData
+  formData.append('resposta', JSON.stringify(respostaData));
+  console.log('Dados da resposta adicionados ao FormData:', respostaData);
+
+  // Adiciona os arquivos ao FormData
+  arquivos.forEach((arquivo) => {
+    const base64Data = arquivo.anexo.split(',')[1]; // Remove o prefixo do Data URL
+    const blob = new Blob([atob(base64Data)], { type: arquivo.nomeArquivo.split('.').pop() }); // Cria um blob a partir do base64
+    formData.append('file', blob, arquivo.nomeArquivo); // Adiciona o arquivo ao FormData
+    console.log(`Arquivo adicionado ao FormData: ${arquivo.nomeArquivo}`);
+  });
+
+  console.log('FormData preparado para envio:', formData);
+
+  try {
+    console.log('Iniciando requisição para:', `${BASE_URL}/resposta`);
+    const response = await fetch(`${BASE_URL}/resposta`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    console.log('Resposta recebida. Status:', response.status);
+    const responseText = await response.text(); // Captura o texto da resposta para depuração
+    console.log('Texto da resposta:', responseText);
+
+    if (response.status === 201) {
+      console.log('Resposta criada com sucesso');
+      
+      // Cria um novo objeto de resposta com os dados que temos
+      const novaResposta = {
+        idResposta: Date.now(), // Use um ID temporário
+        descricao,
+        criadoPor: {
+          idUsuario: user.idUsuario,
+          nome: user.nome
+        },
+        criadoEm: new Date().toISOString(),
+        anexos: arquivos.map(arquivo => ({
+          nomeArquivo: arquivo.nomeArquivo,
+          anexo: arquivo.anexo
+        }))
+      };
+
+      setRespostas(prev => ({
+        ...prev,
+        [idTopico]: [novaResposta, ...(prev[idTopico] || [])]
+      }));
+
+      console.log('Nova resposta adicionada ao estado:', novaResposta);
+      return novaResposta; // Retorna o novo objeto de resposta
+    } else {
+      console.error('Falha ao criar resposta. Status:', response.status);
+      throw new Error(`Falha ao criar resposta: ${response.status}. Detalhes: ${responseText}`);
+    }
+  } catch (error) {
+    console.error('Erro ao criar resposta:', error);
+    throw error;
+  }
+}, [user]);
+
   
  
   const searchAll = useCallback((searchTerm) => {
